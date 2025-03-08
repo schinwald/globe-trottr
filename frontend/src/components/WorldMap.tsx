@@ -1,10 +1,11 @@
-import { Timer } from "lucide-react";
+import { Play, RefreshCw, Timer } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef } from "react";
 import Globe from "react-globe.gl";
 import pointsData from "../data/world.json";
 import globeImageUrl from "../data/world.png";
 import type { Country } from "../types";
+import { cn } from "../utils/classname";
 
 const countryPositions: Record<string, [number, number, number]> = {};
 for (const feature of pointsData.features) {
@@ -43,6 +44,10 @@ interface WorldMapProps {
 	score: number;
 	totalCountries: number;
 	timeLeft: number;
+	gameOver: boolean;
+	gameStarted: boolean;
+	onStartGame: () => void;
+	onRestartGame: () => void;
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
@@ -51,6 +56,10 @@ const WorldMap: React.FC<WorldMapProps> = ({
 	score,
 	totalCountries,
 	timeLeft,
+	gameOver,
+	gameStarted,
+	onStartGame,
+	onRestartGame,
 }) => {
 	const globeRef = useRef();
 	const guessed = countries
@@ -67,7 +76,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
 		globeRef.current.pointOfView({ lat, lng }, 1000);
 	}, [guessedCountry]);
 
-	console.log(timeLeft);
 	const formatTime = (seconds: number) => {
 		const mins = Math.floor(seconds / 60);
 		const secs = seconds % 60;
@@ -76,13 +84,43 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
 	return (
 		<div className="grid h-[600px] w-full overflow-hidden justify-center">
-			<div className="col-span-full row-span-full m-10 z-50 text-white flex flex-col items-center justify-between pointer-events-none">
+			<div
+				className={cn(
+					"col-span-full row-span-full m-10 z-50 text-white flex flex-col items-center justify-between",
+					{ "pointer-events-none": gameOver || gameStarted },
+				)}
+			>
 				<div>
 					{guessedCountry?.name ? (
 						<span className="text-green-400">{guessedCountry.name}</span>
 					) : (
 						<span>Guess a country</span>
 					)}
+				</div>
+				<div>
+					{!gameStarted && !gameOver ? (
+						<button
+							onClick={onStartGame}
+							className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-lg hover:bg-blue-700 transition-colors"
+						>
+							<Play className="mr-2" size={20} />
+							Start Game
+						</button>
+					) : gameOver ? (
+						<div className="text-center">
+							<h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+							<p className="mb-4">
+								You guessed {score} out of {totalCountries} countries.
+							</p>
+							<button
+								onClick={onRestartGame}
+								className="py-3 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-lg hover:bg-blue-700 transition-colors mx-auto"
+							>
+								<RefreshCw className="mr-2" size={20} />
+								Play Again
+							</button>
+						</div>
+					) : null}
 				</div>
 				<div className="flex justify-between items-center mb-4 w-full px-10">
 					<div className="flex items-center">

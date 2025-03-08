@@ -1,25 +1,68 @@
 import { Globe } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import FriendsPanel from "./components/FriendsPanel";
 import GameControls from "./components/GameControls";
+import GameModeSelector from "./components/GameMode";
+import GameOptions from "./components/GameOptions";
 import GameStats from "./components/GameStats";
 import WorldMap from "./components/WorldMap";
 import { countries as countriesData } from "./data/countries";
-import type { GameState } from "./types";
+import type { Friend, GameSettings, GameState } from "./types";
 import { getHintForRandomCountry } from "./utils/hints";
 
-const GAME_TIME = 300; // 5 minutes in seconds
+const DEFAULT_GAME_TIME = 300; // 5 minutes in seconds
+
+// Mock friends data for demonstration
+const mockFriends: Friend[] = [
+	{ id: "1", name: "Alex", online: true, score: 15 },
+	{ id: "2", name: "Taylor", online: true, score: 8 },
+	{ id: "3", name: "Jordan", online: false },
+];
+
+function normalizeCountryName(inputString: string) {
+	const mappings: Record<string, string> = {
+		ã: "a",
+		é: "e",
+		í: "i",
+		ô: "o",
+	};
+
+	// Iterate over each character in the input string
+	return Array.from(inputString.toLowerCase())
+		.map((char) => {
+			// Replace the character if it exists in the mappings object
+			return mappings[char] || char;
+		})
+		.join("")
+		.replaceAll(/[\-' ]/g, "");
+}
 
 function App() {
+	const [settings, setSettings] = useState<GameSettings>({
+		type: undefined,
+		mode: undefined,
+	});
 	const [gameState, setGameState] = useState<GameState>({
-		countries: countriesData,
-		timeLeft: GAME_TIME,
+		timeLeft: DEFAULT_GAME_TIME,
 		gameStarted: false,
 		gameOver: false,
 		score: 0,
 		totalCountries: countriesData.length,
 		hintsUsed: 0,
 		currentHint: null,
+		countries: countriesData.map((country) => ({
+			...country,
+			guessed: true,
+		})),
 		guessedCountry: null,
+		gameOptions: {
+			timeLimit: DEFAULT_GAME_TIME,
+			continentFilter: [],
+			searchAccuracy: "fuzzy",
+			maxHints: 3,
+		},
+		friends: [],
+		notifications: [],
 	});
 
 	const startGame = useCallback(() => {
@@ -27,7 +70,7 @@ function App() {
 			...prev,
 			gameStarted: true,
 			gameOver: false,
-			timeLeft: GAME_TIME,
+			timeLeft: DEFAULT_GAME_TIME,
 			score: 0,
 			hintsUsed: 0,
 			currentHint: null,
@@ -35,17 +78,40 @@ function App() {
 				...country,
 				guessed: false,
 			})),
+			gameOptions: {
+				timeLimit: DEFAULT_GAME_TIME,
+				continentFilter: [],
+				searchAccuracy: "fuzzy",
+				maxHints: 3,
+			},
+			friends: mockFriends,
+			notifications: [],
 		}));
 	}, []);
+
+	// Update game options
+	const handleOptionsChange = useCallback(
+		(options: GameState["gameOptions"]) => {
+			setGameState((prev) => ({
+				...prev,
+				gameOptions: options,
+				timeLeft: options.timeLimit,
+			}));
+		},
+		[],
+	);
 
 	const restartGame = useCallback(() => {
 		startGame();
 	}, [startGame]);
 
-	const handleGuess = useCallback((guess: string) => {
-		const normalizedGuess = guess.trim().toLowerCase();
+	const handleGuess = (guess: string) => {
+		const normalizedGuess = normalizeCountryName(guess);
 		const guessedCountry = gameState.countries.find((country) => {
-			if (country.name.toLowerCase() === normalizedGuess && !country.guessed) {
+			if (
+				normalizeCountryName(country.name) === normalizedGuess &&
+				!country.guessed
+			) {
 				return true;
 			}
 		});
@@ -66,7 +132,7 @@ function App() {
 				score: newScore,
 			};
 		});
-	}, []);
+	};
 
 	const requestHint = useCallback(() => {
 		setGameState((prev) => {
@@ -82,8 +148,6 @@ function App() {
 	// Timer effect
 	useEffect(() => {
 		let timer: number | undefined;
-
-		console.log(gameState);
 
 		if (
 			gameState.gameStarted &&
@@ -107,25 +171,6 @@ function App() {
 		};
 	}, [gameState.gameStarted, gameState.gameOver, gameState.timeLeft]);
 
-	// For testing - mark some countries as guessed
-	useEffect(() => {
-		if (!gameState.gameStarted) {
-			const testCountries = gameState.countries.map((country, index) => {
-				// Mark a few countries as guessed for testing the map display
-				if (index % 10 === 0) {
-					return { ...country, guessed: true };
-				}
-				return country;
-			});
-
-			setGameState((prev) => ({
-				...prev,
-				countries: testCountries,
-				score: testCountries.filter((c) => c.guessed).length,
-			}));
-		}
-	}, []);
-
 	return (
 		<div className="min-h-screen bg-gray-50 py-8 px-4">
 			<div className="max-w-6xl mx-auto">
@@ -140,6 +185,35 @@ function App() {
 				</header>
 
 				<div className="grid grid-cols-12 max-w-screen-2xl gap-6">
+					<div className="col-span-3">
+						{!gameState.gameStarted && !gameState.gameOver ? (
+							<div className="flex flex-col h-full gap-4">
+								<GameModeSelector
+									settings={settings}
+									setSettings={setSettings}
+									options={gameState.gameOptions}
+									onOptionsChange={handleOptionsChange}
+								/>
+								<FriendsPanel friends={gameState.friends} />
+							</div>
+						) : (
+							<div>
+								<FriendsPanel friends={gameState.friends} />
+								<GameControls
+									onGuess={handleGuess}
+									onRequestHint={requestHint}
+									gameStarted={gameState.gameStarted}
+									gameOver={gameState.gameOver}
+									hintsUsed={gameState.hintsUsed}
+									maxHints={gameState.gameOptions.maxHints}
+									score={gameState.score}
+									totalCountries={gameState.totalCountries}
+									countries={gameState.countries}
+									currentHint={gameState.currentHint}
+								/>
+							</div>
+						)}
+					</div>
 					<div className="bg-white rounded-xl shadow-md overflow-hidden col-span-6">
 						<WorldMap
 							guessedCountry={gameState.guessedCountry}
@@ -147,28 +221,17 @@ function App() {
 							score={gameState.score}
 							totalCountries={gameState.totalCountries}
 							timeLeft={gameState.timeLeft}
-						/>
-					</div>
-					<div className="col-span-6">
-						<GameControls
-							onGuess={handleGuess}
-							onStartGame={startGame}
-							onRestartGame={restartGame}
-							onRequestHint={requestHint}
 							gameStarted={gameState.gameStarted}
 							gameOver={gameState.gameOver}
-							score={gameState.score}
-							totalCountries={gameState.totalCountries}
-							countries={gameState.countries}
-							hintsUsed={gameState.hintsUsed}
-							currentHint={gameState.currentHint}
+							onStartGame={startGame}
+							onRestartGame={restartGame}
 						/>
-						{(gameState.gameStarted || gameState.gameOver) && (
-							<GameStats
-								countries={gameState.countries}
-								score={gameState.score}
-							/>
-						)}
+					</div>
+					<div className="col-span-3">
+						<GameStats
+							countries={gameState.countries}
+							score={gameState.score}
+						/>
 					</div>
 				</div>
 			</div>
