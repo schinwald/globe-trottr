@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "dev": "tsx --watch src/index.ts",
     "start": "node ./build/index.js"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^22.13.8",
     "@types/ws": "^8.5.14",
+    "tsx": "^4.0.0",
     "typescript": "^5.8.2"
   }
 }
