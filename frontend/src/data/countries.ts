@@ -1,4 +1,4 @@
-import { Country } from '../types';
+import type { Country } from "../types"
 
 export const countries: Country[] = [
   { id: "AFG", name: "Afghanistan", iso: "AFG", guessed: false },
@@ -46,7 +46,12 @@ export const countries: Country[] = [
   { id: "CUB", name: "Cuba", iso: "CUB", guessed: false },
   { id: "CYP", name: "Cyprus", iso: "CYP", guessed: false },
   { id: "CZE", name: "Czech Republic", iso: "CZE", guessed: false },
-  { id: "COD", name: "Democratic Republic of the Congo", iso: "COD", guessed: false },
+  {
+    id: "COD",
+    name: "Democratic Republic of the Congo",
+    iso: "COD",
+    guessed: false,
+  },
   { id: "DNK", name: "Denmark", iso: "DNK", guessed: false },
   { id: "DJI", name: "Djibouti", iso: "DJI", guessed: false },
   { id: "DMA", name: "Dominica", iso: "DMA", guessed: false },
@@ -146,7 +151,12 @@ export const countries: Country[] = [
   { id: "RWA", name: "Rwanda", iso: "RWA", guessed: false },
   { id: "KNA", name: "Saint Kitts and Nevis", iso: "KNA", guessed: false },
   { id: "LCA", name: "Saint Lucia", iso: "LCA", guessed: false },
-  { id: "VCT", name: "Saint Vincent and the Grenadines", iso: "VCT", guessed: false },
+  {
+    id: "VCT",
+    name: "Saint Vincent and the Grenadines",
+    iso: "VCT",
+    guessed: false,
+  },
   { id: "WSM", name: "Samoa", iso: "WSM", guessed: false },
   { id: "SMR", name: "San Marino", iso: "SMR", guessed: false },
   { id: "STP", name: "São Tomé and Príncipe", iso: "STP", guessed: false },
@@ -195,5 +205,5 @@ export const countries: Country[] = [
   { id: "VNM", name: "Vietnam", iso: "VNM", guessed: false },
   { id: "YEM", name: "Yemen", iso: "YEM", guessed: false },
   { id: "ZMB", name: "Zambia", iso: "ZMB", guessed: false },
-  { id: "ZWE", name: "Zimbabwe", iso: "ZWE", guessed: false }
-];
+  { id: "ZWE", name: "Zimbabwe", iso: "ZWE", guessed: false },
+]
