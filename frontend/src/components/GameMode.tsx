@@ -43,24 +43,6 @@ const GameModeSelector: React.FC<GameModeSelectorProps> = ({
               <Users className="mr-2" size={20} />
               <span>Multiplayer</span>
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSettings((prev) => ({ ...prev, type: "multiplayer" }))
-              }}
-              className="flex-1 py-2 px-4 rounded-lg flex items-center justify-center transition-colors border border-blue-600 text-blue-600"
-            >
-              <span>Host</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSettings((prev) => ({ ...prev, type: "multiplayer" }))
-              }}
-              className="flex-1 py-2 px-4 rounded-lg flex items-center justify-center transition-colors border border-blue-600 text-blue-600"
-            >
-              <span>Join</span>
-            </button>
           </>
         ))
         .with({ type: "singleplayer" }, () => (

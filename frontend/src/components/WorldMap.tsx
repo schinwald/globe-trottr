@@ -93,9 +93,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
         <div>
           {guessedCountry?.name ? (
             <span className="text-green-400">{guessedCountry.name}</span>
-          ) : (
-            <span>Guess a country</span>
-          )}
+          ) : null}
         </div>
         <div>
           {!gameStarted && !gameOver ? (

@@ -54,15 +54,7 @@ const GameControls: React.FC<GameControlsProps> = ({
 
   return (
     <div className="w-full mx-auto">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col justify-end gap-4 h-[600px]"
-      >
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-gray-500">
-            {totalCountries - score} countries left
-          </div>
-        </div>
+      <form onSubmit={handleSubmit} className="flex flex-col justify-end gap-4">
         <div className="relative">
           <input
             ref={inputRef}

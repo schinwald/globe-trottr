@@ -1,12 +1,14 @@
-import { Globe } from "lucide-react"
-import FriendsPanel from "./components/FriendsPanel"
+import { Globe, Settings } from "lucide-react"
+import { useState } from "react"
+import { Lobby } from "./components/FriendsPanel"
 import GameControls from "./components/GameControls"
-import GameModeSelector from "./components/GameMode"
+import GameModeModal from "./components/GameModeModal"
 import GameStats from "./components/GameStats"
 import WorldMap from "./components/WorldMap"
 import { useGameState } from "./hooks/useGameState"
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(true)
   const {
     settings,
     setSettings,
@@ -35,17 +37,11 @@ function App() {
           <div className="col-span-3">
             {!gameState.gameStarted && !gameState.gameOver ? (
               <div className="flex flex-col h-full gap-4">
-                <GameModeSelector
-                  settings={settings}
-                  setSettings={setSettings}
-                  options={gameState.gameOptions}
-                  onOptionsChange={handleOptionsChange}
-                />
-                <FriendsPanel friends={gameState.friends} />
+                <Lobby friends={gameState.friends} />
               </div>
             ) : (
-              <div>
-                <FriendsPanel friends={gameState.friends} />
+              <div className="flex flex-col h-full gap-4">
+                <Lobby friends={gameState.friends} />
                 <GameControls
                   onGuess={handleGuess}
                   onRequestHint={requestHint}
@@ -82,6 +78,14 @@ function App() {
           </div>
         </div>
       </div>
+      <GameModeModal
+        isOpen={isModalOpen}
+        settings={settings}
+        setSettings={setSettings}
+        options={gameState.gameOptions}
+        onOptionsChange={handleOptionsChange}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   )
 }
