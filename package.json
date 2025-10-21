@@ -16,5 +16,9 @@
   "packageManager": "pnpm@10.15.1",
   "devDependencies": {
     "turbo": "^2.5.8"
+  },
+  "dependencies": {
+    "frontend": "2.0.0-alpha.4",
+    "tailwindcss": "4.1.0"
   }
 }

@@ -196,7 +196,7 @@ export const countries: Country[] = [
   { id: "UKR", name: "Ukraine", iso: "UKR", guessed: false },
   { id: "ARE", name: "United Arab Emirates", iso: "ARE", guessed: false },
   { id: "GBR", name: "United Kingdom", iso: "GBR", guessed: false },
-  { id: "USA", name: "United States", iso: "USA", guessed: false },
+  { id: "USA", name: "United States of America", iso: "USA", guessed: false },
   { id: "URY", name: "Uruguay", iso: "URY", guessed: false },
   { id: "UZB", name: "Uzbekistan", iso: "UZB", guessed: false },
   { id: "VUT", name: "Vanuatu", iso: "VUT", guessed: false },

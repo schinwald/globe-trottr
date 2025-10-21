@@ -1,6 +1,13 @@
 import { Clock, Globe, HelpCircle, Search } from "lucide-react"
 import type React from "react"
-import { useId } from "react"
+import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { GameOptions as GameOptionsType } from "../types"
 
 interface GameOptionsProps {
@@ -21,10 +28,10 @@ const GameOptions: React.FC<GameOptionsProps> = ({
   options,
   onOptionsChange,
 }) => {
-  const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTimeChange = (value: string) => {
     onOptionsChange({
       ...options,
-      timeLimit: Number.parseInt(e.target.value, 10),
+      timeLimit: Number.parseInt(value, 10),
     })
   }
 
@@ -46,56 +53,60 @@ const GameOptions: React.FC<GameOptionsProps> = ({
     })
   }
 
-  const handleHintChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleHintChange = (value: string) => {
     onOptionsChange({
       ...options,
-      maxHints: Number.parseInt(e.target.value, 10),
+      maxHints: Number.parseInt(value, 10),
     })
   }
 
   const disabled = false
-  const timeLimitId = useId()
-  const maxHintsId = useId()
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
       <div className="space-y-4">
         {/* Time Limit */}
-        <div className="flex items-center">
-          <Clock className="mr-2 text-blue-600" size={18} />
-          <label htmlFor={timeLimitId} className="mr-2 text-sm font-medium">
+        <div className="flex items-center w-full">
+          <Clock className="mr-2 text-blue-600 size-6" />
+          <span className="mr-2 text-sm font-medium whitespace-nowrap">
             Time Limit:
-          </label>
-          <select
-            id={timeLimitId}
-            value={options.timeLimit}
-            onChange={handleTimeChange}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+          </span>
+          <Select
+            value={options.timeLimit.toString()}
+            onValueChange={handleTimeChange}
           >
-            <option value={60}>1 minute</option>
-            <option value={180}>3 minutes</option>
-            <option value={300}>5 minutes</option>
-            <option value={600}>10 minutes</option>
-          </select>
+            <SelectTrigger className="grow-1">
+              <SelectValue placeholder="Select time" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="60">1 minute</SelectItem>
+              <SelectItem value="180">3 minutes</SelectItem>
+              <SelectItem value="300">5 minutes</SelectItem>
+              <SelectItem value="600">10 minutes</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Max Hints */}
-        <div className="flex items-center">
-          <HelpCircle className="mr-2 text-blue-600" size={18} />
-          <label htmlFor={maxHintsId} className="mr-2 text-sm font-medium">
+        <div className="flex items-center w-full">
+          <HelpCircle className="mr-2 text-blue-600 size-6" />
+          <span className="mr-2 text-sm font-medium whitespace-nowrap">
             Max Hints:
-          </label>
-          <select
-            id={maxHintsId}
-            value={options.maxHints}
-            onChange={handleHintChange}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
+          </span>
+          <Select
+            value={options.maxHints.toString()}
+            onValueChange={handleHintChange}
           >
-            <option value={3}>3 hints</option>
-            <option value={5}>5 hints</option>
-            <option value={10}>10 hints</option>
-            <option value={999}>Unlimited</option>
-          </select>
+            <SelectTrigger className="grow-1">
+              <SelectValue placeholder="Select hints" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="3">3 hints</SelectItem>
+              <SelectItem value="5">5 hints</SelectItem>
+              <SelectItem value="10">10 hints</SelectItem>
+              <SelectItem value="999">Unlimited</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Search Accuracy */}
@@ -104,31 +115,27 @@ const GameOptions: React.FC<GameOptionsProps> = ({
             <Search className="mr-2 text-blue-600" size={18} />
             <span className="text-sm font-medium">Search Accuracy:</span>
           </div>
-          <div className="flex space-x-3 ml-6">
-            <button
-              type="button"
+          <div className="flex gap-2 ml-6">
+            <Button
               onClick={() => handleAccuracyChange("strict")}
               disabled={disabled}
-              className={`px-3 py-1 text-sm rounded ${
-                options.searchAccuracy === "strict"
-                  ? "bg-blue-100 text-blue-700 border border-blue-300"
-                  : "bg-gray-100 text-gray-700 border border-gray-200"
-              } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              variant={
+                options.searchAccuracy === "strict" ? "secondary" : "outline"
+              }
+              size="xs"
             >
               Strict
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={() => handleAccuracyChange("fuzzy")}
               disabled={disabled}
-              className={`px-3 py-1 text-sm rounded ${
-                options.searchAccuracy === "fuzzy"
-                  ? "bg-blue-100 text-blue-700 border border-blue-300"
-                  : "bg-gray-100 text-gray-700 border border-gray-200"
-              } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+              variant={
+                options.searchAccuracy === "fuzzy" ? "secondary" : "outline"
+              }
+              size="xs"
             >
               Fuzzy
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -140,19 +147,19 @@ const GameOptions: React.FC<GameOptionsProps> = ({
           </div>
           <div className="flex flex-wrap gap-2 ml-6">
             {continents.map((continent) => (
-              <button
-                type="button"
+              <Button
                 key={continent.id}
                 onClick={() => handleContinentToggle(continent.id)}
                 disabled={disabled}
-                className={`px-3 py-1 text-sm rounded ${
+                variant={
                   options.continentFilter.includes(continent.id)
-                    ? "bg-blue-100 text-blue-700 border border-blue-300"
-                    : "bg-gray-100 text-gray-700 border border-gray-200"
-                } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ? "secondary"
+                    : "outline"
+                }
+                size="xs"
               >
                 {continent.name}
-              </button>
+              </Button>
             ))}
           </div>
         </div>

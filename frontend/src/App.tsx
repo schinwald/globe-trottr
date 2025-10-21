@@ -1,11 +1,14 @@
-import { Globe, Settings } from "lucide-react"
+import { Settings, UserPlus } from "lucide-react"
 import { useState } from "react"
+import logoUrl from "@/assets/logo.svg"
+import { Button } from "@/components/ui/button"
 import { Lobby } from "./components/FriendsPanel"
 import GameControls from "./components/GameControls"
 import GameModeModal from "./components/GameModeModal"
 import GameStats from "./components/GameStats"
 import WorldMap from "./components/WorldMap"
 import { useGameState } from "./hooks/useGameState"
+import { useRoom } from "./hooks/websocket"
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(true)
@@ -17,67 +20,71 @@ function App() {
     handleOptionsChange,
     restartGame,
     handleGuess,
-    requestHint,
   } = useGameState()
+  const { roomCode, users, join } = useRoom()
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 flex items-center justify-center">
-            <Globe className="mr-3 text-blue-600" size={32} />
-            World-Wide Wonders
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Guess as many countries as you can before the timer runs out!
-          </p>
+    <div className="min-h-screen bg-background py-8 px-4">
+      <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-6">
+        <div className="col-span-3 flex justify-start items-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <UserPlus className="size-4" />
+            Invite Friends
+          </Button>
+        </div>
+        <header className="col-span-6 flex flex-col items-center">
+          <div className="size-[200px] -mt-[25px] -mb-[100px] -mx-[100px]">
+            <img src={logoUrl} alt="Logo" className="w-full" />
+          </div>
         </header>
-
-        <div className="grid grid-cols-12 max-w-screen-2xl gap-6">
-          <div className="col-span-3">
-            {!gameState.gameStarted && !gameState.gameOver ? (
-              <div className="flex flex-col h-full gap-4">
-                <Lobby friends={gameState.friends} />
-              </div>
-            ) : (
-              <div className="flex flex-col h-full gap-4">
-                <Lobby friends={gameState.friends} />
-                <GameControls
-                  onGuess={handleGuess}
-                  onRequestHint={requestHint}
-                  gameStarted={gameState.gameStarted}
-                  gameOver={gameState.gameOver}
-                  hintsUsed={gameState.hintsUsed}
-                  maxHints={gameState.gameOptions.maxHints}
-                  score={gameState.score}
-                  totalCountries={gameState.totalCountries}
-                  countries={gameState.countries}
-                  currentHint={gameState.currentHint}
-                />
-              </div>
-            )}
-          </div>
-          <div className="bg-white rounded-xl shadow-md overflow-hidden col-span-6">
-            <WorldMap
-              guessedCountry={gameState.guessedCountry}
-              countries={gameState.countries}
-              score={gameState.score}
-              totalCountries={gameState.totalCountries}
-              timeLeft={gameState.timeLeft}
-              gameStarted={gameState.gameStarted}
-              gameOver={gameState.gameOver}
-              onStartGame={startGame}
-              onRestartGame={restartGame}
-            />
-          </div>
-          <div className="col-span-3">
-            <GameStats
-              countries={gameState.countries}
-              score={gameState.score}
+        <div className="col-span-3 flex justify-end items-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Settings
+            <Settings className="size-4" />
+          </Button>
+        </div>
+        <div className="col-span-3 h-[650px]">
+          <div className="flex flex-col h-full gap-4">
+            <Lobby
+              friends={gameState.friends}
+              roomCode={roomCode}
+              users={users}
+              onJoin={join}
             />
           </div>
         </div>
+        <div className="bg-white rounded-xl shadow-md overflow-hidden col-span-6 h-[650px]">
+          <WorldMap
+            guessedCountry={gameState.guessedCountry}
+            countries={gameState.countries}
+            score={gameState.score}
+            totalCountries={gameState.totalCountries}
+            timeLeft={gameState.timeLeft}
+            gameStarted={gameState.gameStarted}
+            gameOver={gameState.gameOver}
+            onStartGame={startGame}
+            onRestartGame={restartGame}
+          />
+          <GameControls
+            onGuess={handleGuess}
+            gameStarted={gameState.gameStarted}
+            gameOver={gameState.gameOver}
+            countries={gameState.countries}
+          />
+        </div>
+        <div className="col-span-3 h-[650px]">
+          <GameStats countries={gameState.countries} score={gameState.score} />
+        </div>
       </div>
+
       <GameModeModal
         isOpen={isModalOpen}
         settings={settings}

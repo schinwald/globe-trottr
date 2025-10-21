@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
+import { mockFriends } from "../constants/mockData"
 import { countries as countriesData } from "../data/countries"
 import type { GameSettings, GameState } from "../types"
 import { getHintForRandomCountry } from "../utils/hints"
 import { normalizeCountryName } from "../utils/normalize"
-import { mockFriends } from "../constants/mockData"
 
 const DEFAULT_GAME_TIME = 300 // 5 minutes in seconds
 
@@ -148,5 +148,6 @@ export function useGameState() {
     restartGame,
     handleGuess,
     requestHint,
+    hintsUsed: gameState.hintsUsed,
   }
 }

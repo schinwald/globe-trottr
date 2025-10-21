@@ -71,15 +71,18 @@ const room = {
 };
 
 fastify.register(async (fastify) => {
-	fastify.get("/websocket", { websocket: true }, (socket, req) => {
-		const { roomCode } = room.create({ socket, id: "jamie", role: "host" });
-		socket.send(
-			JSON.stringify({
-				data: {
-					roomCode,
-				},
-			}),
-		);
+  fastify.get("/websocket", { websocket: true }, (socket, req) => {
+    const userId = uuid();
+    const { roomCode } = room.create({ socket, id: userId, role: "host" });
+    socket.send(
+      JSON.stringify({
+        type: "room-created",
+        data: {
+          roomCode,
+          users: [userId],
+        },
+      }),
+    );
 
 		const message = (callback: (data: any) => void) => {
 			return (data: any) => {
@@ -101,10 +104,11 @@ fastify.register(async (fastify) => {
 								id: data.user.name,
 							});
 
-							if (!isJoined) return socket.send("Did not join the room");
+							if (!isJoined) return socket.send(JSON.stringify({ error: "Did not join the room" }));
 
+							const userList = Object.keys(rooms[data.roomCode].users);
 							for (const user of Object.values(rooms[data.roomCode].users)) {
-								user.socket.send(`${data.user.name} joined the room`);
+								user.socket.send(JSON.stringify({ type: "user-joined", user: data.user.name, users: userList }));
 							}
 						},
 					)
