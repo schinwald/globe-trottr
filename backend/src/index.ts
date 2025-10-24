@@ -1,14 +1,23 @@
 import websocket, { type WebSocket } from "@fastify/websocket";
-// Import the framework and instantiate it
+import { applyWSSHandler } from "@trpc/server/adapters/ws";
 import Fastify from "fastify";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
+import ws from "ws";
+import { appRouter } from "./trpc.js";
 
 const fastify = Fastify({
 	logger: true,
 });
 
 fastify.register(websocket);
+
+const wss = new ws.Server({ port: 5002 });
+applyWSSHandler({
+	wss,
+	router: appRouter,
+	createContext: () => ({}),
+});
 
 type Room = {
 	code: string;
@@ -71,18 +80,18 @@ const room = {
 };
 
 fastify.register(async (fastify) => {
-  fastify.get("/websocket", { websocket: true }, (socket, req) => {
-    const userId = uuid();
-    const { roomCode } = room.create({ socket, id: userId, role: "host" });
-    socket.send(
-      JSON.stringify({
-        type: "room-created",
-        data: {
-          roomCode,
-          users: [userId],
-        },
-      }),
-    );
+	fastify.get("/websocket", { websocket: true }, (socket, req) => {
+		const userId = uuid();
+		const { roomCode } = room.create({ socket, id: userId, role: "host" });
+		socket.send(
+			JSON.stringify({
+				type: "room-created",
+				data: {
+					roomCode,
+					users: [userId],
+				},
+			}),
+		);
 
 		const message = (callback: (data: any) => void) => {
 			return (data: any) => {
@@ -104,11 +113,20 @@ fastify.register(async (fastify) => {
 								id: data.user.name,
 							});
 
-							if (!isJoined) return socket.send(JSON.stringify({ error: "Did not join the room" }));
+							if (!isJoined)
+								return socket.send(
+									JSON.stringify({ error: "Did not join the room" }),
+								);
 
 							const userList = Object.keys(rooms[data.roomCode].users);
 							for (const user of Object.values(rooms[data.roomCode].users)) {
-								user.socket.send(JSON.stringify({ type: "user-joined", user: data.user.name, users: userList }));
+								user.socket.send(
+									JSON.stringify({
+										type: "user-joined",
+										user: data.user.name,
+										users: userList,
+									}),
+								);
 							}
 						},
 					)
