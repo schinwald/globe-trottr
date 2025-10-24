@@ -1,10 +1,12 @@
 import { MapPinIcon, Play, RefreshCw, Timer } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef } from "react"
-import Globe, { GlobeMethods } from "react-globe.gl"
+import Globe, { type GlobeMethods } from "react-globe.gl"
 import { Button } from "@/components/ui/button"
 import pointsData from "../data/world.json"
+
 const globeImageUrl = "/world.png"
+
 import type { Country } from "../types"
 
 const countryPositions: Record<string, [number, number, number]> = {}
@@ -93,31 +95,29 @@ const WorldMap: React.FC<WorldMapProps> = ({
           </span>
         ) : null}
       </div>
-      <div>
-        {!gameStarted && !gameOver ? (
-          <Button
-            onClick={onStartGame}
-            className="w-full py-3 px-4 flex items-center justify-center font-bold text-lg"
-          >
-            <Play className="mr-2" size={20} />
-            Start Game
+      {!gameStarted && !gameOver ? (
+        <div className="col-span-full row-span-full flex justify-center items-center z-30">
+          <Button size="lg" onClick={onStartGame}>
+            <Play className="size-4 mr-1" />
+            <span className="text-lg font-bold">Start Game</span>
           </Button>
-        ) : gameOver ? (
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
-            <p className="mb-4">
-              You guessed {score} out of {totalCountries} countries.
-            </p>
-            <Button
-              onClick={onRestartGame}
-              className="py-3 px-4 flex items-center justify-center font-bold text-lg mx-auto"
-            >
-              <RefreshCw className="mr-2" size={20} />
-              Play Again
-            </Button>
-          </div>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+      {gameOver ? (
+        <div className="col-span-full row-span-full text-center">
+          <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
+          <p className="mb-4">
+            You guessed {score} out of {totalCountries} countries.
+          </p>
+          <Button
+            onClick={onRestartGame}
+            className="py-3 px-4 flex items-center justify-center font-bold text-lg mx-auto"
+          >
+            <RefreshCw className="mr-2" size={20} />
+            Play Again
+          </Button>
+        </div>
+      ) : null}
       <div className="absolute left-0 bottom-0 p-6 z-50 text-white">
         <div className="flex flex-col justify- items-start w-full">
           <div className="flex items-center">

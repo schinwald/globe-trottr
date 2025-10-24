@@ -31,8 +31,8 @@ function App() {
   const { roomCode, users, join } = useRoom()
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-6">
+    <div className="min-h-screen py-8 px-8">
+      <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
         <div className="col-span-3 flex justify-start items-end">
           <Button
             variant="outline"
@@ -105,4 +105,3 @@ function App() {
 }
 
 export default App
-
