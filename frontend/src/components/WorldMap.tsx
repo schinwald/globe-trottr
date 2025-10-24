@@ -52,6 +52,7 @@ interface WorldMapProps {
   gameStarted: boolean
   onStartGame: () => void
   onRestartGame: () => void
+  countdown: number | null
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
@@ -64,6 +65,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   gameStarted,
   onStartGame,
   onRestartGame,
+  countdown,
 }) => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const guessed = countries
@@ -95,26 +97,23 @@ const WorldMap: React.FC<WorldMapProps> = ({
           </span>
         ) : null}
       </div>
-      {!gameStarted && !gameOver ? (
+      {!gameStarted && !gameOver && countdown === null ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <Button size="lg" onClick={onStartGame}>
             <Play className="size-4 mr-1" />
             <span className="text-lg font-bold">Start Game</span>
           </Button>
         </div>
+      ) : countdown !== null ? (
+        <div className="col-span-full row-span-full flex justify-center items-center z-30">
+          <div className="text-6xl font-bold text-white">{countdown}</div>
+        </div>
       ) : null}
       {gameOver ? (
-        <div className="col-span-full row-span-full text-center">
-          <h2 className="text-2xl font-bold mb-4">Game Over!</h2>
-          <p className="mb-4">
-            You guessed {score} out of {totalCountries} countries.
-          </p>
-          <Button
-            onClick={onRestartGame}
-            className="py-3 px-4 flex items-center justify-center font-bold text-lg mx-auto"
-          >
-            <RefreshCw className="mr-2" size={20} />
-            Play Again
+        <div className="col-span-full row-span-full flex justify-center items-center z-30">
+          <Button onClick={onRestartGame} size="lg">
+            <RefreshCw className="size-4 mr-2" />
+            <span className="text-lg font-bold">Play Again?</span>
           </Button>
         </div>
       ) : null}

@@ -18,6 +18,7 @@ export interface GameState {
   gameOptions: GameOptions
   friends: Friend[]
   notifications: Notification[]
+  countdown: number | null
 }
 
 export interface GameOptions {

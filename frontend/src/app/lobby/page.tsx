@@ -27,6 +27,7 @@ function App() {
     handleOptionsChange,
     restartGame,
     handleGuess,
+    countdown,
   } = useGameState()
   const { roomCode, users, join } = useRoom()
 
@@ -79,6 +80,7 @@ function App() {
             gameOver={gameState.gameOver}
             onStartGame={startGame}
             onRestartGame={restartGame}
+            countdown={countdown}
           />
           <GameControls
             onGuess={handleGuess}

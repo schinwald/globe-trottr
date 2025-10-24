@@ -33,12 +33,13 @@ export function useGameState() {
     },
     friends: [],
     notifications: [],
+    countdown: null,
   })
 
   const startGame = useCallback(() => {
     setGameState((prev) => ({
       ...prev,
-      gameStarted: true,
+      gameStarted: false,
       gameOver: false,
       timeLeft: DEFAULT_GAME_TIME,
       score: 0,
@@ -56,6 +57,7 @@ export function useGameState() {
       },
       friends: mockFriends,
       notifications: [],
+      countdown: 3,
     }))
   }, [])
 
@@ -113,6 +115,27 @@ export function useGameState() {
     })
   }, [])
 
+  // Countdown effect
+  useEffect(() => {
+    let countdownTimer: number | undefined
+
+    if (gameState.countdown !== null && gameState.countdown > 0) {
+      countdownTimer = window.setInterval(() => {
+        setGameState((prev) => {
+          const newCountdown = prev.countdown! - 1
+          if (newCountdown <= 0) {
+            return { ...prev, countdown: null, gameStarted: true }
+          }
+          return { ...prev, countdown: newCountdown }
+        })
+      }, 1000)
+    }
+
+    return () => {
+      if (countdownTimer) clearInterval(countdownTimer)
+    }
+  }, [gameState.countdown])
+
   // Timer effect
   useEffect(() => {
     let timer: number | undefined
@@ -149,5 +172,6 @@ export function useGameState() {
     handleGuess,
     requestHint,
     hintsUsed: gameState.hintsUsed,
+    countdown: gameState.countdown,
   }
 }
