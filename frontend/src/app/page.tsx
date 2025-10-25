@@ -1,9 +1,5 @@
 "use client"
 
-import dynamic from "next/dynamic"
-
-const WorldMap = dynamic(() => import("@/components/WorldMap"), { ssr: false })
-
 const logoUrl = "/logo.svg"
 
 import { Link } from "@/components/ui/link"

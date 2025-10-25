@@ -119,11 +119,11 @@ export function useGameState() {
   useEffect(() => {
     let countdownTimer: number | undefined
 
-    if (gameState.countdown !== null && gameState.countdown > 0) {
+    if (gameState.countdown !== null && gameState.countdown >= 0) {
       countdownTimer = window.setInterval(() => {
         setGameState((prev) => {
           const newCountdown = prev.countdown! - 1
-          if (newCountdown <= 0) {
+          if (newCountdown < 0) {
             return { ...prev, countdown: null, gameStarted: true }
           }
           return { ...prev, countdown: newCountdown }

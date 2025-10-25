@@ -8,6 +8,7 @@ import pointsData from "../data/world.json"
 const globeImageUrl = "/world.png"
 
 import type { Country } from "../types"
+import { AnimateCountdown } from "./AnimateCountdown"
 
 const countryPositions: Record<string, [number, number, number]> = {}
 for (const feature of pointsData.features) {
@@ -88,6 +89,12 @@ const WorldMap: React.FC<WorldMapProps> = ({
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`
   }
 
+  const getCountdown = () => {
+    if (countdown === null) return undefined
+    if (countdown === 0) return "GO!"
+    return countdown.toString()
+  }
+
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
       <div className="absolute top-0 p-6 flex items-center">
@@ -104,11 +111,13 @@ const WorldMap: React.FC<WorldMapProps> = ({
             <span className="text-lg font-bold">Start Game</span>
           </Button>
         </div>
-      ) : countdown !== null ? (
-        <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <div className="text-6xl font-bold text-white">{countdown}</div>
-        </div>
       ) : null}
+      <div className="col-span-full row-span-full flex justify-center items-center z-20">
+        <AnimateCountdown
+          value={getCountdown()}
+          className="text-6xl font-bold text-white"
+        />
+      </div>
       {gameOver ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <Button onClick={onRestartGame} size="lg">
