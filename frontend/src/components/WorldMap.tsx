@@ -11,6 +11,7 @@ import type { Country } from "../types"
 import { AnimateCountdown } from "./AnimateCountdown"
 
 const countryPositions: Record<string, [number, number, number]> = {}
+
 for (const feature of pointsData.features) {
   let count = 1
   const average: [number, number, number] = [0, 0, 0]
@@ -40,7 +41,7 @@ for (const feature of pointsData.features) {
       }
     }
   }
-  countryPositions[feature.properties.ISO_A3] = average
+  countryPositions[feature.properties.ADM0_A3_IS] = average
 }
 
 interface WorldMapProps {
@@ -97,6 +98,14 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   const guessedCountries = countries.filter((country) => country.guessed)
 
+  const normalizedCountryCode = (countryCode: string) => {
+    if (countryCode === "GRL") return "DNK" // Greenland -> Denmark
+    if (countryCode === "ESH") return "MAR" // Sahara -> Morocco
+    if (countryCode === "NCL") return "FRA" // New Caledonia -> France
+    if (countryCode === "PRI") return "USA" // Puerto Rico -> United States
+    return countryCode
+  }
+
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
       <div className="absolute top-0 p-6 flex items-center">
@@ -150,33 +159,55 @@ const WorldMap: React.FC<WorldMapProps> = ({
           globeImageUrl={globeImageUrl}
           polygonsData={pointsData.features}
           polygonSideColor={({ properties: d }: any) => {
-            if (guessed[d.ISO_A3]) return "#0ea271"
-            if (!countries.find((c) => c.name === d.ADMIN)) {
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#0ea271"
+
+            if (
+              !countries.find(
+                (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
+              )
+            ) {
               return `#ccc`
             }
+
             return "#eee"
           }}
           polygonStrokeColor={({ properties: d }: any) => {
-            if (guessed[d.ISO_A3]) return "#0c8a60"
-            if (!countries.find((c) => c.name === d.ADMIN)) {
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#0c8a60"
+
+            if (
+              !countries.find(
+                (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
+              )
+            ) {
               return `#ccc`
             }
+
             return "#aaa"
           }}
           polygonCapColor={({ properties: d }: any) => {
-            if (guessed[d.ISO_A3]) return "#10b981"
-            if (!countries.find((c) => c.name === d.ADMIN)) {
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#10b981"
+
+            if (
+              !countries.find(
+                (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
+              )
+            ) {
               return `#ccc`
             }
+
             return "#fff"
           }}
           polygonLabel={({ properties: d }: any) => {
-            if (guessedCountries.find((c) => c.name === d.ADMIN)) {
-              return `<b>${d.ADMIN}</b>`
+            if (
+              guessedCountries.find(
+                (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
+              )
+            ) {
+              return `<b>${d.NAME}</b>`
             }
 
-            if (!countries.find((c) => c.name === d.ADMIN)) {
-              return ""
+            if (!countries.find((c) => c.iso === d.ADM0_A3_IS)) {
+              return `<b>${d.NAME}</b>`
             }
 
             return "???"

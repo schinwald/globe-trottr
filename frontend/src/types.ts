@@ -3,6 +3,7 @@ export interface Country {
   name: string
   iso: string
   guessed: boolean
+  matches: string[]
 }
 
 export interface GameState {

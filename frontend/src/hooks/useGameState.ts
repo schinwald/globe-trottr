@@ -80,10 +80,11 @@ export function useGameState() {
   const handleGuess = (guess: string) => {
     const normalizedGuess = normalizeCountryName(guess)
     const guessedCountry = gameState.countries.find((country) => {
-      return (
-        normalizeCountryName(country.name) === normalizedGuess &&
-        !country.guessed
-      )
+      return country.matches.find((match) => {
+        return (
+          normalizeCountryName(match) === normalizedGuess && !country.guessed
+        )
+      })
     })
 
     setGameState((prev) => {
