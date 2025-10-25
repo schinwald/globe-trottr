@@ -22,7 +22,7 @@ export default function Leaderboard() {
           <p className="text-muted-foreground">Top players this week</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white rounded-lg shadow-md border">
           <div className="p-6">
             <div className="space-y-4">
               {leaderboard.map((player, index) => (
@@ -58,4 +58,3 @@ export default function Leaderboard() {
     </div>
   )
 }
-

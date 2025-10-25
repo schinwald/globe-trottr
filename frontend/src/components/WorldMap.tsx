@@ -95,6 +95,8 @@ const WorldMap: React.FC<WorldMapProps> = ({
     return countdown.toString()
   }
 
+  const guessedCountries = countries.filter((country) => country.guessed)
+
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
       <div className="absolute top-0 p-6 flex items-center">
@@ -112,10 +114,10 @@ const WorldMap: React.FC<WorldMapProps> = ({
           </Button>
         </div>
       ) : null}
-      <div className="col-span-full row-span-full flex justify-center items-center z-20">
+      <div className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none">
         <AnimateCountdown
           value={getCountdown()}
-          className="text-6xl font-bold text-white"
+          className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
         />
       </div>
       {gameOver ? (
@@ -149,31 +151,35 @@ const WorldMap: React.FC<WorldMapProps> = ({
           polygonsData={pointsData.features}
           polygonSideColor={({ properties: d }: any) => {
             if (guessed[d.ISO_A3]) return "#0ea271"
-            if (countries.find((c) => c.name !== d.ADMIN)) {
+            if (!countries.find((c) => c.name === d.ADMIN)) {
               return `#ccc`
             }
             return "#eee"
           }}
           polygonStrokeColor={({ properties: d }: any) => {
             if (guessed[d.ISO_A3]) return "#0c8a60"
-            if (countries.find((c) => c.name !== d.ADMIN)) {
+            if (!countries.find((c) => c.name === d.ADMIN)) {
               return `#ccc`
             }
             return "#aaa"
           }}
           polygonCapColor={({ properties: d }: any) => {
             if (guessed[d.ISO_A3]) return "#10b981"
-            if (countries.find((c) => c.name !== d.ADMIN)) {
+            if (!countries.find((c) => c.name === d.ADMIN)) {
               return `#ccc`
             }
             return "#fff"
           }}
           polygonLabel={({ properties: d }: any) => {
-            if (countries.find((c) => c.name === d.ADMIN)) {
+            if (guessedCountries.find((c) => c.name === d.ADMIN)) {
               return `<b>${d.ADMIN}</b>`
             }
 
-            return ""
+            if (!countries.find((c) => c.name === d.ADMIN)) {
+              return ""
+            }
+
+            return "???"
           }}
           polygonAltitude={0.01}
           backgroundColor={"#1b2436"}

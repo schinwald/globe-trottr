@@ -63,7 +63,7 @@ const GameOptions: React.FC<GameOptionsProps> = ({
   const disabled = false
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
       <div className="space-y-4">
         {/* Time Limit */}
         <div className="flex items-center w-full">

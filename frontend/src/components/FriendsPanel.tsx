@@ -32,7 +32,7 @@ const Lobby: React.FC<FriendsPanelProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex items-start h-full">
+    <div className="bg-white rounded-xl shadow-xl border border-gray-300 flex items-start h-full">
       <div className="w-full px-4 py-3 flex flex-col justify-center items-between text-left gap-2">
         <header className="flex items-center">
           <Users className="mr-2 text-blue-600" size={20} />

@@ -69,7 +69,7 @@ function App() {
             />
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-md overflow-hidden col-span-6 h-[650px]">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-6 h-[650px]">
           <WorldMap
             guessedCountry={gameState.guessedCountry}
             countries={gameState.countries}

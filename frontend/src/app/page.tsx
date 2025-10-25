@@ -7,7 +7,7 @@ import { Link } from "@/components/ui/link"
 function App() {
   return (
     <div className="w-full h-full flex justify-center items-center">
-      <div className="max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="max-w-md bg-white rounded-xl border border-gray-300 shadow-xl p-8 text-center">
         <div className="size-[400px] mx-auto -my-[100px]">
           <img
             src={logoUrl}
