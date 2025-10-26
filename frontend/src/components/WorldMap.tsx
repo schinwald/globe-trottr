@@ -1,9 +1,16 @@
+"use client"
+
+'use client'
+
 import { MapPinIcon, Play, RefreshCw, Timer } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef } from "react"
-import Globe, { type GlobeMethods } from "react-globe.gl"
+import { useEffect, useRef, useState } from "react"
+import dynamic from "next/dynamic"
+import type { GlobeMethods } from "react-globe.gl"
 import { Button } from "@/components/ui/button"
 import pointsData from "../data/world.json"
+
+const Globe = dynamic(() => import("react-globe.gl"), { ssr: false })
 
 const globeImageUrl = "/world.png"
 

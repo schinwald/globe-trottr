@@ -34,105 +34,16 @@ const GameModeModal: React.FC<GameModeModalProps> = ({
         onPointerDownOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle>
-            {match(settings)
-              .with({ type: P.nullish }, () => "Welcome")
-              .with({ type: "singleplayer" }, () => "Settings")
-              .with(
-                { type: "multiplayer", mode: P.nullish },
-                () => "Multiplayer"
-              )
-              .with(
-                { type: "multiplayer", mode: "host" },
-                () => "Host Settings"
-              )
-              .with({ type: "multiplayer", mode: "join" }, () => "Join Room")
-              .otherwise(() => "Settings")}
-          </DialogTitle>
+          <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          {match(settings)
-            .with({ type: P.nullish }, () => (
-              <>
-                <Button
-                  onClick={() =>
-                    setSettings((prev) => ({ ...prev, type: "singleplayer" }))
-                  }
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <User className="mr-2" size={20} />
-                  <span>Singleplayer</span>
-                </Button>
-                <Button
-                  onClick={() => {
-                    setSettings((prev) => ({ ...prev, type: "multiplayer" }))
-                  }}
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <Users className="mr-2" size={20} />
-                  <span>Multiplayer</span>
-                </Button>
-              </>
-            ))
-            .with({ type: "singleplayer" }, () => (
-              <>
-                <GameOptions
-                  options={options}
-                  onOptionsChange={onOptionsChange}
-                />
-                <Button
-                  onClick={() => onClose()}
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <span>Create game</span>
-                </Button>
-              </>
-            ))
-            .with({ type: "multiplayer", mode: P.nullish }, () => (
-              <>
-                <Button
-                  onClick={() =>
-                    setSettings((prev) => ({ ...prev, mode: "host" }))
-                  }
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <span>Host</span>
-                </Button>
-                <Button
-                  onClick={() =>
-                    setSettings((prev) => ({ ...prev, mode: "join" }))
-                  }
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <span>Join</span>
-                </Button>
-              </>
-            ))
-            .with({ type: "multiplayer", mode: "host" }, () => (
-              <>
-                <GameOptions
-                  options={options}
-                  onOptionsChange={onOptionsChange}
-                />
-                <Button
-                  onClick={() => onClose()}
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <span>Create room</span>
-                </Button>
-              </>
-            ))
-            .with({ type: "multiplayer", mode: "join" }, () => (
-              <>
-                <Button
-                  onClick={() => onClose()}
-                  className="flex-1 py-2 px-4 flex items-center justify-center"
-                >
-                  <span>Enter room</span>
-                </Button>
-              </>
-            ))
-            .otherwise(() => null)}
+          <GameOptions options={options} onOptionsChange={onOptionsChange} />
+          <Button
+            onClick={() => onClose()}
+            className="flex-1 py-2 px-4 flex items-center justify-center"
+          >
+            <span>Save</span>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

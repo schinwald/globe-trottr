@@ -55,7 +55,7 @@ export const appRouter = t.router({
 			await subscriber.subscribe(ROOM_UPDATES_CHANNEL(input.roomCode));
 
 			try {
-				for await (const { channel, message } of await createSubscriberIterator(
+				for await (const { message } of await createSubscriberIterator(
 					subscriber,
 				)) {
 					if (signal?.aborted) break;
