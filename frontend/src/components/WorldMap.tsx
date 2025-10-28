@@ -1,11 +1,11 @@
 "use client"
 
-'use client'
+"use client"
 
 import { MapPinIcon, Play, RefreshCw, Timer } from "lucide-react"
+import dynamic from "next/dynamic"
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
-import dynamic from "next/dynamic"
 import type { GlobeMethods } from "react-globe.gl"
 import { Button } from "@/components/ui/button"
 import pointsData from "../data/world.json"
@@ -149,12 +149,6 @@ const WorldMap: React.FC<WorldMapProps> = ({
           <div className="flex items-center">
             <Timer className="mr-1 text-blue-600" size={20} />
             <span className="text-xl font-bold">{formatTime(timeLeft)}</span>
-          </div>
-          <div className="flex items-center">
-            <MapPinIcon className="mr-1 text-red-500" size={20} />
-            <span className="text-xl font-bold">
-              {score} / {totalCountries}
-            </span>
           </div>
         </div>
       </div>

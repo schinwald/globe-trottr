@@ -2,11 +2,11 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createTRPCClient, createWSClient, wsLink } from "@trpc/client"
-import type { AppRouter } from "../../backend/src/trpc"
+import type { AppRouter } from "../../backend/src/router/index.js"
 import { trpc } from "./lib/trpc"
 
 const wsClient = createWSClient({
-  url: `ws://localhost:5002`,
+  url: `ws://localhost:5003`,
 })
 
 const queryClient = new QueryClient()

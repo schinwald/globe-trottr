@@ -1,0 +1,143 @@
+"use client"
+
+import { Settings, UserPlus } from "lucide-react"
+import { useParams } from "next/navigation"
+import { useLayoutEffect, useState } from "react"
+import { Lobby } from "@/components/FriendsPanel"
+import { Floater } from "@/components/floater"
+import GameControls from "@/components/GameControls"
+import GameModeModal from "@/components/GameModeModal"
+import GameStats from "@/components/GameStats"
+import { Button } from "@/components/ui/button"
+import WorldMap from "@/components/WorldMap"
+import { useGameState } from "@/hooks/useGameState"
+import { trpc } from "@/lib/trpc"
+
+const logoUrl = "/logo.svg"
+
+type Params = { roomCode: string }
+
+const Game: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(true)
+  const {
+    settings,
+    setSettings,
+    gameState,
+    startGame,
+    handleOptionsChange,
+    restartGame,
+    handleGuess,
+    countdown,
+  } = useGameState()
+
+  const { roomCode } = useParams<Params>()
+  const [users, setUsers] = useState<string[]>([])
+
+  useLayoutEffect(() => {
+    const username = window.sessionStorage.getItem("username")
+    if (!username) window.location.href = `/?invite=${roomCode}`
+  }, [roomCode])
+
+  trpc.subscriptionRoomConnections.useSubscription(
+    {
+      roomCode,
+      username: window.sessionStorage.getItem("username") ?? "",
+    },
+    {
+      onData: ({ users }) => {
+        setUsers(users)
+      },
+    }
+  )
+
+  trpc.subscriptionCountryGuesses.useSubscription(
+    {
+      roomCode,
+      userId: window.sessionStorage.getItem("username") ?? "",
+    },
+    {
+      onData: ({ userId, guess }) => {
+        console.log(userId, guess)
+      },
+    }
+  )
+
+  return (
+    <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
+      <div className="col-span-3 flex justify-start items-end">
+        <Floater.Root>
+          <Floater.Trigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `localhost:3000/lobby/${roomCode}`
+                )
+              }}
+            >
+              <UserPlus className="size-5" />
+              Invite Friends
+            </Button>
+          </Floater.Trigger>
+          <Floater.Portal>
+            <p className="text-sm whitespace-nowrap text-primary">Copied!</p>
+          </Floater.Portal>
+        </Floater.Root>
+      </div>
+      <header className="col-span-6 flex flex-col items-center">
+        <div className="size-[199px] -mt-[25px] -mb-[100px] -mx-[100px]">
+          <img src={logoUrl} alt="Logo" className="w-full" />
+        </div>
+      </header>
+      <div className="col-span-3 flex justify-end items-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Settings
+          <Settings className="size-5" />
+        </Button>
+      </div>
+      <div className="col-span-3 h-[590px]">
+        <div className="flex flex-col h-full gap-5">
+          <Lobby users={users} />
+        </div>
+      </div>
+      <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-6 h-[590px]">
+        <WorldMap
+          guessedCountry={gameState.guessedCountry}
+          countries={gameState.countries}
+          score={gameState.score}
+          totalCountries={gameState.totalCountries}
+          timeLeft={gameState.timeLeft}
+          gameStarted={gameState.gameStarted}
+          gameOver={gameState.gameOver}
+          onStartGame={startGame}
+          onRestartGame={restartGame}
+          countdown={countdown}
+        />
+        <GameControls
+          onGuess={handleGuess}
+          gameStarted={gameState.gameStarted}
+          gameOver={gameState.gameOver}
+          countries={gameState.countries}
+        />
+      </div>
+      <div className="col-span-3 h-[590px]">
+        <GameStats countries={gameState.countries} score={gameState.score} />
+      </div>
+      <GameModeModal
+        isOpen={isModalOpen}
+        settings={settings}
+        setSettings={setSettings}
+        options={gameState.gameOptions}
+        onOptionsChange={handleOptionsChange}
+        onClose={() => setIsModalOpen(false)}
+      />
+    </div>
+  )
+}
+
+export { Game }

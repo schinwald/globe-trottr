@@ -84,4 +84,323 @@
 	--radius-lg: 10px;
 	--radius-md: 8px;
 	--radius-sm: 6px;
+
+  --animate-pop-in-from-bottom: pop-in-from-bottom 400ms linear;
+  --animate-pop-in-from-top: pop-in-from-top 400ms linear;
+  --animate-pop-in-from-left: pop-in-from-left 400ms linear;
+  --animate-pop-in-from-right: pop-in-from-right 400ms linear;
+	--animate-accordion-down: accordion-down 200ms ease-out;
+	--animate-accordion-up: accordion-up 200ms ease-out;
+	--animate-fade-in: fade-in 200ms ease-in;
+	--animate-fade-out: fade-out 200ms ease-out;
+	--animate-spin-slow: spin 6s linear infinite;
+	--animate-wiggle: wiggle 1s ease-in-out infinite;
+	--animate-heart-beat: heartBeat 1s infinite;
+	--animate-hflip: flipHorizontal 2s infinite;
+	--animate-vflip: flipVertical 2s infinite;
+	--animate-swing: swing 2s ease-out infinite;
+	--animate-rubber-band: rubberBand 1s infinite;
+	--animate-flash: flash 2s infinite;
+	--animate-head-shake: headShake 2s infinite;
+	--animate-wobble: wobble 1s infinite;
+	--animate-jello: jello 2s infinite;
+	--animate-float-away: floatAway 700ms linear;
+
+  @keyframes pop-in-from-left {
+    0% {
+      opacity: 0;
+      transform: scale(0.1, 0.1) translateX(150%);
+      pointer-events: none;
+    }
+    30% {
+      opacity: 1;
+      transform: scale(0.9, 0.1) translateX(0%);
+      pointer-events: none;
+    }
+    50% {
+      transform: scale(1) translateX(0%);
+    }
+    75% {
+      transform: scale(1, 0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pop-in-from-right {
+    0% {
+      opacity: 0;
+      transform: scale(0.1, 0.1) translateX(-150%);
+      pointer-events: none;
+    }
+    30% {
+      opacity: 1;
+      transform: scale(0.9, 0.1) translateX(0%);
+      pointer-events: none;
+    }
+    50% {
+      transform: scale(1) translateX(0%);
+    }
+    75% {
+      transform: scale(1, 0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pop-in-from-bottom {
+    0% {
+      opacity: 0;
+      transform: scale(0.1, 0.1) translateY(-150%);
+      pointer-events: none;
+    }
+    30% {
+      opacity: 1;
+      transform: scale(0.1, 0.9) translateY(0%);
+      pointer-events: none;
+    }
+    50% {
+      transform: scale(1) translateY(0%);
+    }
+    75% {
+      transform: scale(0.95, 1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pop-in-from-top {
+    0% {
+      opacity: 0;
+      transform: scale(0.1, 0.1) translateY(150%);
+      pointer-events: none;
+    }
+    30% {
+      opacity: 1;
+      transform: scale(0.1, 0.9) translateY(0%);
+      pointer-events: none;
+    }
+    50% {
+      transform: scale(1) translateY(0%);
+    }
+    75% {
+      transform: scale(0.95, 1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+	@keyframes accordion-down {
+		from {
+			height: 0;
+		}
+		to {
+			height: var(--radix-accordion-content-height);
+		}
+	}
+	@keyframes accordion-up {
+		from {
+			height: var(--radix-accordion-content-height);
+		}
+		to {
+			height: 0;
+		}
+	}
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+	@keyframes fade-out {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+	@keyframes wiggle {
+		0%,
+		100% {
+			transform: rotate(-15deg);
+		}
+		50% {
+			transform: rotate(15deg);
+		}
+	}
+	@keyframes heart-beat {
+		0% {
+			transform: scale(1);
+		}
+		14% {
+			transform: scale(1.3);
+		}
+		28% {
+			transform: scale(1);
+		}
+		42% {
+			transform: scale(1.3);
+		}
+		70% {
+			transform: scale(1);
+		}
+	}
+	@keyframes flip-horizontal {
+		50% {
+			transform: rotateY(180deg);
+		}
+	}
+	@keyframes flip-vertical {
+		50% {
+			transform: rotateX(180deg);
+		}
+	}
+	@keyframes swing {
+		20% {
+			transform: rotate3d(0, 0, 1, 15deg);
+		}
+		40% {
+			transform: rotate3d(0, 0, 1, -10deg);
+		}
+		60% {
+			transform: rotate3d(0, 0, 1, 5deg);
+		}
+		80% {
+			transform: rotate3d(0, 0, 1, -5deg);
+		}
+		to {
+			transform: rotate3d(0, 0, 1, 0deg);
+		}
+	}
+	@keyframes rubber-band {
+		from {
+			transform: scale3d(1, 1, 1);
+		}
+		30% {
+			transform: scale3d(1.25, 0.75, 1);
+		}
+		40% {
+			transform: scale3d(0.75, 1.25, 1);
+		}
+		50% {
+			transform: scale3d(1.15, 0.85, 1);
+		}
+		65% {
+			transform: scale3d(0.95, 1.05, 1);
+		}
+		75% {
+			transform: scale3d(1.05, 0.95, 1);
+		}
+		to {
+			transform: scale3d(1, 1, 1);
+		}
+	}
+	@keyframes flash {
+		25%,
+		40% {
+			opacity: 0;
+		}
+		50% {
+			opacity: 1;
+		}
+		75% {
+			opacity: 0;
+		}
+	}
+	@keyframes head-shake {
+		0% {
+			transform: translateX(0);
+		}
+		6.5% {
+			transform: translateX(-6px) rotateY(-9deg);
+		}
+		18.5% {
+			transform: translateX(5px) rotateY(7deg);
+		}
+		31.5% {
+			transform: translateX(-3px) rotateY(-5deg);
+		}
+		43.5% {
+			transform: translateX(2px) rotateY(3deg);
+		}
+		50% {
+			transform: translateX(0);
+		}
+	}
+	@keyframes wobble {
+		from {
+			transform: translate3d(0, 0, 0);
+		}
+		15% {
+			transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);
+		}
+		30% {
+			transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);
+		}
+		45% {
+			transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);
+		}
+		60% {
+			transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);
+		}
+		75% {
+			transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);
+		}
+		to {
+			transform: translate3d(0, 0, 0);
+		}
+	}
+	@keyframes jello {
+		from,
+		11.1%,
+		to {
+			transform: translate3d(0, 0, 0);
+		}
+		22.2% {
+			transform: skewX(-12.5deg) skewY(-12.5deg);
+		}
+		33.3% {
+			transform: skewX(6.25deg) skewY(6.25deg);
+		}
+		44.4% {
+			transform: skewX(-3.125deg) skewY(-3.125deg);
+		}
+		55.5% {
+			transform: skewX(1.5625deg) skewY(1.5625deg);
+		}
+		66.6% {
+			transform: skewX(-0.78125deg) skewY(-0.78125deg);
+		}
+		77.7% {
+			transform: skewX(0.390625deg) skewY(0.390625deg);
+		}
+		88.8% {
+			transform: skewX(-0.1953125deg) skewY(-0.1953125deg);
+		}
+	}
+	@keyframes floatAway {
+		from {
+			transform: translate(-50%, 10%);
+			opacity: 0;
+		}
+		50% {
+			transform: translate(-50%, -20%);
+			opacity: 1;
+		}
+		to {
+			transform: translate(-50%, -50%);
+			opacity: 0;
+		}
+	}
 }
