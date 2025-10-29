@@ -220,7 +220,7 @@ export const guessCountry = async ({
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	await redis.rpush(
-		ROOM_GUESSES_KEY(userId),
+		ROOM_GUESSES_KEY(roomCode),
 		JSON.stringify({
 			userId,
 			guess,

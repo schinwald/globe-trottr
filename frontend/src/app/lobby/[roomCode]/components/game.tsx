@@ -19,9 +19,11 @@ import type { User } from "../../../../../../backend/src/utils/redis-schema"
 
 const logoUrl = "/logo.svg"
 
-type Params = { roomCode: string }
+interface GameProps {
+  roomCode: string
+}
 
-const Game: React.FC = () => {
+const Game: React.FC<GameProps> = ({ roomCode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const {
     settings,
@@ -30,11 +32,9 @@ const Game: React.FC = () => {
     startGame,
     handleOptionsChange,
     restartGame,
-    handleGuess,
     countdown,
   } = useGameState()
 
-  const { roomCode } = useParams<Params>()
   const [users, setUsers] = useState<
     (User & { id: string; role: "host" | "guest" })[]
   >([])
@@ -62,18 +62,6 @@ const Game: React.FC = () => {
         //   title: "Looks like you've fallen of the grid!",
         //   message: "Attempting to reconnect...",
         // })
-      },
-    }
-  )
-
-  trpc.subscriptionCountryGuesses.useSubscription(
-    {
-      roomCode,
-      userId: window.sessionStorage.getItem("username") ?? "",
-    },
-    {
-      onData: ({ userId, guess }) => {
-        console.log(userId, guess)
       },
     }
   )
@@ -137,7 +125,7 @@ const Game: React.FC = () => {
           countdown={countdown}
         />
         <GameControls
-          onGuess={handleGuess}
+          roomCode={roomCode}
           gameStarted={gameState.gameStarted}
           gameOver={gameState.gameOver}
           countries={gameState.countries}
