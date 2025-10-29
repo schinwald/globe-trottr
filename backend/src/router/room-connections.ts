@@ -32,7 +32,9 @@ export const procedure = t.procedure
 			yield payload;
 
 			for await (const data of iterator) {
-				yield JSON.parse(data.message) as { users: (User & { id: string })[] };
+				yield JSON.parse(data.message) as {
+					users: (User & { id: string; role: "host" | "guest" })[];
+				};
 			}
 		} finally {
 			const left = await leaveRoom({

@@ -74,6 +74,7 @@ export type User = {
 	username: string;
 };
 
+// Creating a user
 export const createUser = async (id: string, user: User) => {
 	await redis.hset(USER_KEY(id), user);
 	return id;
@@ -81,17 +82,39 @@ export const createUser = async (id: string, user: User) => {
 
 // Getting a user
 export const getUser = async (id: string) => {
+	const exists = await redis.exists(USER_KEY(id));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find user" });
+
 	const user = await redis.hgetall(USER_KEY(id));
 	return user as User;
 };
 
-// Creating a user
+type Room = {
+	createdAt: number;
+};
+
+// Creating a room
 export const createRoom = async () => {
 	const roomId = await redis.incr(TOTAL_ROOMS_KEY);
 	const roomCode = sqids.encode([roomId]);
-	await redis.hset(ROOM_KEY(roomCode), { createdAt: Date.now() });
+	await redis.hset(ROOM_KEY(roomCode), {
+		createdAt: Date.now(),
+	} satisfies Room);
 	return roomCode;
 };
+
+// Gettings a room
+export const getRoom = async (roomCode: string) => {
+	const exists = await redis.exists(ROOM_KEY(roomCode));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
+
+	const room = await redis.hgetall(ROOM_KEY(roomCode));
+	return room as unknown as Room;
+};
+
+type Role = "host" | "guest";
 
 type JoinRoomArgs = {
 	roomCode: string;
@@ -105,10 +128,14 @@ export const joinRoom = async ({ roomCode, userId }: JoinRoomArgs) => {
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	await redis.incr(ROOM_CONNECTION_KEY(roomCode, userId));
+	const numberOfUsers = await redis.hlen(ROOM_USERS_KEY(roomCode));
+	const role = (() => {
+		if (numberOfUsers === 0) return "host";
+		return "guest";
+	})();
+
 	await redis.hset(ROOM_USERS_KEY(roomCode), {
-		[userId]: {
-			role: "host",
-		},
+		[userId]: role,
 	});
 };
 
@@ -116,6 +143,37 @@ type LeaveRoomArgs = {
 	roomCode: string;
 	userId: string;
 };
+
+const SCRIPT_LEAVE_ROOM = `
+-- KEYS[1] = room roles hash
+-- ARGV[1] = user leaving
+
+-- Get the user's role
+local role = redis.call('HGET', KEYS[1], ARGV[1])
+
+-- Delete the user from the room
+redis.call('HDEL', KEYS[1], ARGV[1])
+
+-- Check if the user is the host
+if role == 'host' then
+  local users = redis.call('HKEYS', KEYS[1])
+  if #users > 0 then
+    local new_host = users[1]
+    redis.call('HSET', KEYS[1], new_host, 'host')
+    return new_host
+  end
+end
+
+return nil
+`;
+
+const deleteUserAndPromoteOther = redis.defineCommand(
+	"deleteUserAndPromoteOther",
+	{
+		numberOfKeys: 1,
+		lua: SCRIPT_LEAVE_ROOM,
+	},
+);
 
 // Leaving a room
 export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
@@ -126,7 +184,7 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 	const connections = await redis.decr(ROOM_CONNECTION_KEY(roomCode, userId));
 	if (connections > 0) return false;
 
-	await redis.hdel(ROOM_USERS_KEY(roomCode), userId);
+	redis.deleteUserAndPromoteOther(ROOM_USERS_KEY(roomCode), userId);
 	return true;
 };
 
@@ -134,11 +192,12 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 export const getRoomUsers = async (roomCode: string) => {
 	const userIds = await redis.hgetall(ROOM_USERS_KEY(roomCode));
 	const users = await Promise.all(
-		Object.keys(userIds).map(async (id) => {
-			const fields = await getUser(id);
+		Object.entries(userIds).map(async ([id, role]) => {
+			const user = await getUser(id);
 			return {
 				id,
-				...fields,
+				role: role as Role,
+				...user,
 			};
 		}),
 	);

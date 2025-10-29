@@ -1,6 +1,7 @@
 "use client"
 
 import { Settings, UserPlus } from "lucide-react"
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import ErrorModal from "@/components/ErrorModal"
@@ -34,7 +35,9 @@ const Game: React.FC = () => {
   } = useGameState()
 
   const { roomCode } = useParams<Params>()
-  const [users, setUsers] = useState<(User & { id: string })[]>([])
+  const [users, setUsers] = useState<
+    (User & { id: string; role: "host" | "guest" })[]
+  >([])
   const [error, setError] = useState<ErrorType>()
 
   trpc.subscriptionRoomConnections.useSubscription(
@@ -100,7 +103,9 @@ const Game: React.FC = () => {
       </div>
       <header className="col-span-6 flex flex-col items-center">
         <div className="size-[199px] -mt-[25px] -mb-[100px] -mx-[100px]">
-          <img src={logoUrl} alt="Logo" className="w-full" />
+          <Link href="/">
+            <img src={logoUrl} alt="Logo" className="w-full" />
+          </Link>
         </div>
       </header>
       <div className="col-span-3 flex justify-end items-end">

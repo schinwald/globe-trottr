@@ -1,6 +1,7 @@
 import { t } from "../utils/trpc.js";
 import { procedure as mutationAuthenticate } from "./authenticate.js";
 import { procedure as subscriptionCountryGuesses } from "./country-guesses.js";
+import { procedure as queryRoom } from "./room.js";
 import { procedure as subscriptionRoomConnections } from "./room-connections.js";
 import { procedure as mutationRoomCreate } from "./room-create.js";
 import { procedure as subscriptionRoomUpdates } from "./room-updates.js";
@@ -14,6 +15,7 @@ export const appRouter = t.router({
 	mutationRoomCreate,
 	mutationUserGuessCountry,
 	mutationAuthenticate,
+	queryRoom,
 	queryUser,
 });
 

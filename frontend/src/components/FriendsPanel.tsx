@@ -7,11 +7,11 @@ import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
 import type { User } from "../../../backend/src/utils/redis-schema"
 
-interface FriendsPanelProps {
-  users: (User & { id: string })[]
+interface LobbyProps {
+  users: (User & { id: string; role: "host" | "guest" })[]
 }
 
-const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
+const Lobby: React.FC<LobbyProps> = ({ users }) => {
   const maxPlayers = 6
 
   return (
@@ -37,7 +37,9 @@ const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
                   <CircleIcon className="size-4 text-primary" />
                   <span className="text-sm">{user.username}</span>
                 </div>
-                <CrownIcon className="size-4 text-yellow-500" />
+                {user.role === "host" ? (
+                  <CrownIcon className="size-4 text-yellow-500" />
+                ) : null}
               </div>
             )
           })}

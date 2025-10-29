@@ -42,6 +42,12 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
     },
   })
 
+  const getRoomMessage = () => {
+    if (authenticateMutation.isPending) return "Creating User..."
+    if (createRoomMutation.isPending) return "Creating Room..."
+    return "Create Room"
+  }
+
   return (
     <div className="space-y-3">
       <Input
@@ -72,7 +78,7 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
             })
           }}
         >
-          Create Room
+          {getRoomMessage()}
         </Button>
       )}
     </div>
