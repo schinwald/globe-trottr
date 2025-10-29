@@ -7,6 +7,9 @@ const redis = new Redis({
 	password: process.env.REDIS_PASSWORD,
 });
 
+await redis.config("SET", "maxmemory", "500mb");
+await redis.config("SET", "maxmemory-policy", "allkeys-lfu");
+
 export function createRedis(fastify: FastifyInstance) {
 	redis.on("connect", () => {
 		fastify.log.info("Redis connected");

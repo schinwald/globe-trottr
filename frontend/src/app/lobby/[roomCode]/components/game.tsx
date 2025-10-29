@@ -3,6 +3,7 @@
 import { Settings, UserPlus } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import ErrorModal from "@/components/ErrorModal"
 import { Lobby } from "@/components/FriendsPanel"
 import { Floater } from "@/components/floater"
 import GameControls from "@/components/GameControls"
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import WorldMap from "@/components/WorldMap"
 import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
+import type { ErrorType } from "@/utils/errors"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
 
 const logoUrl = "/logo.svg"
@@ -19,7 +21,7 @@ const logoUrl = "/logo.svg"
 type Params = { roomCode: string }
 
 const Game: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(true)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const {
     settings,
     setSettings,
@@ -33,6 +35,7 @@ const Game: React.FC = () => {
 
   const { roomCode } = useParams<Params>()
   const [users, setUsers] = useState<(User & { id: string })[]>([])
+  const [error, setError] = useState<ErrorType>()
 
   trpc.subscriptionRoomConnections.useSubscription(
     {
@@ -41,6 +44,21 @@ const Game: React.FC = () => {
     {
       onData: ({ users }) => {
         setUsers(users)
+      },
+      onError: (error) => {
+        if (error.data?.code === "NOT_FOUND") {
+          window.location.href = "/"
+          // setError({
+          //   title: "Uncharted Territory!",
+          //   message: "No room found on this corner of the map.",
+          // })
+        }
+      },
+      onComplete: () => {
+        // setError({
+        //   title: "Looks like you've fallen of the grid!",
+        //   message: "Attempting to reconnect...",
+        // })
       },
     }
   )
@@ -130,6 +148,11 @@ const Game: React.FC = () => {
         options={gameState.gameOptions}
         onOptionsChange={handleOptionsChange}
         onClose={() => setIsModalOpen(false)}
+      />
+      <ErrorModal
+        isOpen={Boolean(error)}
+        error={error}
+        onClose={() => setError(undefined)}
       />
     </div>
   )

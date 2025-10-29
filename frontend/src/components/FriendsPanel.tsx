@@ -31,11 +31,13 @@ const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
             return (
               <div
                 key={user.id}
-                className="border border-primary rounded-lg px-3 py-1 h-10 flex items-center gap-2"
+                className="border border-primary rounded-lg px-4 py-1 h-12 flex justify-between items-center"
               >
-                {/* <CrownIcon className="size-4 text-yellow-500" /> */}
-                <CircleIcon className="size-4 text-primary" />
-                <span className="text-sm">{user.username}</span>
+                <div className="flex items-center gap-2">
+                  <CircleIcon className="size-4 text-primary" />
+                  <span className="text-sm">{user.username}</span>
+                </div>
+                <CrownIcon className="size-4 text-yellow-500" />
               </div>
             )
           })}
@@ -45,10 +47,10 @@ const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
             return (
               <div
                 key={key}
-                className="border border-gray-300 rounded-lg px-3 py-1 h-10 flex items-center gap-2 opacity-30"
+                className="border border-gray-300 rounded-lg px-4 py-1 h-12 flex items-center gap-2 opacity-30"
               >
                 <EmptyCircleIcon className="size-4 text-blue-500" />
-                <span className="text-sm">Slot</span>
+                <span className="text-sm">Empty</span>
               </div>
             )
           })}

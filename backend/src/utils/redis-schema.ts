@@ -1,5 +1,6 @@
 // Redis key schemas and helper functions
 
+import { TRPCError } from "@trpc/server";
 import Sqids from "sqids";
 import redis from "./redis.js";
 
@@ -100,7 +101,8 @@ type JoinRoomArgs = {
 // Joining a room
 export const joinRoom = async ({ roomCode, userId }: JoinRoomArgs) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
-	if (!exists) throw new Error("Room not found");
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	await redis.incr(ROOM_CONNECTION_KEY(roomCode, userId));
 	await redis.hset(ROOM_USERS_KEY(roomCode), {
@@ -118,24 +120,13 @@ type LeaveRoomArgs = {
 // Leaving a room
 export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
-	if (!exists) throw new Error("Room not found");
-
-	console.log("attempting to leave", userId);
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	const connections = await redis.decr(ROOM_CONNECTION_KEY(roomCode, userId));
 	if (connections > 0) return false;
 
 	await redis.hdel(ROOM_USERS_KEY(roomCode), userId);
-
-	// Check if room is empty
-	const userCount = await redis.hlen(ROOM_USERS_KEY(roomCode));
-
-	if (userCount === 0) {
-		await redis.del(ROOM_KEY(roomCode));
-		await redis.del(ROOM_SETTINGS_KEY(roomCode));
-		await redis.del(ROOM_USERS_KEY(roomCode));
-	}
-
 	return true;
 };
 
@@ -166,7 +157,8 @@ export const guessCountry = async ({
 	guess,
 }: GuessCountryArgs) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
-	if (!exists) throw new Error("Room not found");
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	await redis.rpush(
 		ROOM_GUESSES_KEY(userId),

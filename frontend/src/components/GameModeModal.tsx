@@ -1,5 +1,3 @@
-import { User, Users } from "lucide-react"
-import { match, P } from "ts-pattern"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -21,8 +19,6 @@ interface GameModeModalProps {
 
 const GameModeModal: React.FC<GameModeModalProps> = ({
   isOpen,
-  settings,
-  setSettings,
   options,
   onOptionsChange,
   onClose,
