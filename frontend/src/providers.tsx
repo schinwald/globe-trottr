@@ -1,23 +1,8 @@
 "use client"
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { createTRPCClient, createWSClient, wsLink } from "@trpc/client"
-import type { AppRouter } from "../../backend/src/router/index.js"
+import { QueryClientProvider } from "@tanstack/react-query"
 import { trpc } from "./lib/trpc"
-
-const wsClient = createWSClient({
-  url: `ws://localhost:5003`,
-})
-
-const queryClient = new QueryClient()
-
-const client = createTRPCClient<AppRouter>({
-  links: [
-    wsLink({
-      client: wsClient,
-    }),
-  ],
-})
+import { client, queryClient } from "./trpc"
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   return (

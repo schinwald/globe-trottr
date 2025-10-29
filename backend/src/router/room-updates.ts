@@ -7,7 +7,7 @@ export const procedure = t.procedure
 	.subscription(async function* ({ input, signal }) {
 		const subscriber = redis.duplicate();
 		// await subscriber.subscribe(ROOM_CONNECTION_CHANNEL(input.roomCode));
-		// const iterator = createSubscriberIterator(subscriber);
+		// const iterator = createSubscriberIterator(subscriber, { signal });
 		//
 		// try {
 		// 	for await (const { message } of await iterator) {

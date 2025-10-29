@@ -5,9 +5,10 @@ import type React from "react"
 import { GiPlainCircle as CircleIcon } from "react-icons/gi"
 import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
+import type { User } from "../../../backend/src/utils/redis-schema"
 
 interface FriendsPanelProps {
-  users: string[]
+  users: (User & { id: string })[]
 }
 
 const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
@@ -29,12 +30,12 @@ const Lobby: React.FC<FriendsPanelProps> = ({ users }) => {
           {users.map((user) => {
             return (
               <div
-                key={user}
+                key={user.id}
                 className="border border-primary rounded-lg px-3 py-1 h-10 flex items-center gap-2"
               >
                 {/* <CrownIcon className="size-4 text-yellow-500" /> */}
                 <CircleIcon className="size-4 text-primary" />
-                <span className="text-sm">{user}</span>
+                <span className="text-sm">{user.username}</span>
               </div>
             )
           })}

@@ -10,10 +10,27 @@ type RedisEvent = {
 	message: string;
 };
 
+type Redis = typeof redis;
+type IteratorOptions = {
+	signal?: AbortSignal;
+};
+
 // Create an async iterator for a Redis subscriber
-export const createSubscriberIterator = async (subscriber: typeof redis) => {
+export const createSubscriberIterator = async (
+	subscriber: Redis,
+	option: IteratorOptions,
+) => {
 	const queue: RedisEvent[] = [];
 	let resolver: Function | null = null;
+	let isAborted = false;
+
+	option.signal?.addEventListener("abort", () => {
+		isAborted = true;
+		if (resolver) {
+			resolver();
+			resolver = null;
+		}
+	});
 
 	subscriber.on("message", (channel, message) => {
 		queue.push({ channel, message });
@@ -28,6 +45,9 @@ export const createSubscriberIterator = async (subscriber: typeof redis) => {
 			while (true) {
 				if (queue.length === 0)
 					await new Promise((resolve) => (resolver = resolve));
+
+				if (isAborted) break;
+
 				yield queue.shift() as RedisEvent;
 			}
 		},
@@ -37,6 +57,8 @@ export const createSubscriberIterator = async (subscriber: typeof redis) => {
 // Key patterns
 export const TOTAL_ROOMS_KEY = "total_rooms";
 export const ROOM_KEY = (code: string) => `room:${code}`;
+export const ROOM_CONNECTION_KEY = (code: string, id: string) =>
+	`room:${code}user:${id}:connections`;
 export const ROOM_GUESSES_KEY = (code: string) => `room:${code}:guesses`;
 export const ROOM_SETTINGS_KEY = (code: string) => `room:${code}:settings`;
 export const ROOM_USERS_KEY = (code: string) => `room:${code}:users`;
@@ -47,7 +69,22 @@ export const ROOM_CONNECTION_CHANNEL = (code: string) =>
 	`room:${code}:connections`;
 export const ROOM_GUESSES_CHANNEL = (code: string) => `room:${code}:guesses`;
 
-// Creating a room
+export type User = {
+	username: string;
+};
+
+export const createUser = async (id: string, user: User) => {
+	await redis.hset(USER_KEY(id), user);
+	return id;
+};
+
+// Getting a user
+export const getUser = async (id: string) => {
+	const user = await redis.hgetall(USER_KEY(id));
+	return user as User;
+};
+
+// Creating a user
 export const createRoom = async () => {
 	const roomId = await redis.incr(TOTAL_ROOMS_KEY);
 	const roomCode = sqids.encode([roomId]);
@@ -58,22 +95,14 @@ export const createRoom = async () => {
 type JoinRoomArgs = {
 	roomCode: string;
 	userId: string;
-	username: string;
 };
 
 // Joining a room
-export const joinRoom = async ({
-	roomCode,
-	userId,
-	username,
-}: JoinRoomArgs) => {
+export const joinRoom = async ({ roomCode, userId }: JoinRoomArgs) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
 	if (!exists) throw new Error("Room not found");
 
-	await redis.hset(USER_KEY(userId), {
-		name: username,
-	});
-
+	await redis.incr(ROOM_CONNECTION_KEY(roomCode, userId));
 	await redis.hset(ROOM_USERS_KEY(roomCode), {
 		[userId]: {
 			role: "host",
@@ -91,6 +120,11 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
 	if (!exists) throw new Error("Room not found");
 
+	console.log("attempting to leave", userId);
+
+	const connections = await redis.decr(ROOM_CONNECTION_KEY(roomCode, userId));
+	if (connections > 0) return false;
+
 	await redis.hdel(ROOM_USERS_KEY(roomCode), userId);
 
 	// Check if room is empty
@@ -101,17 +135,23 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 		await redis.del(ROOM_SETTINGS_KEY(roomCode));
 		await redis.del(ROOM_USERS_KEY(roomCode));
 	}
+
+	return true;
 };
 
 // Getting all users in a room
 export const getRoomUsers = async (roomCode: string) => {
 	const userIds = await redis.hgetall(ROOM_USERS_KEY(roomCode));
 	const users = await Promise.all(
-		Object.keys(userIds).map(
-			async (id) => await redis.hget(USER_KEY(id), "name"),
-		),
+		Object.keys(userIds).map(async (id) => {
+			const fields = await getUser(id);
+			return {
+				id,
+				...fields,
+			};
+		}),
 	);
-	return users.filter(Boolean) as string[];
+	return users;
 };
 
 type GuessCountryArgs = {

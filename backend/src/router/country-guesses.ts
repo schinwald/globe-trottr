@@ -11,11 +11,11 @@ export const procedure = t.procedure
 	.subscription(async function* ({ input, signal, ctx }) {
 		const subscriber = redis.duplicate();
 		await subscriber.subscribe(ROOM_GUESSES_CHANNEL(input.roomCode));
-		const iterator = createSubscriberIterator(subscriber);
+		const iterator = createSubscriberIterator(subscriber, { signal });
 
 		try {
-			for await (const { message } of await iterator) {
-				if (signal?.aborted) break;
+			for await (const data of await iterator) {
+				const { message } = data;
 				ctx.log.info({ message }, "Consuming guess");
 				yield JSON.parse(message);
 			}

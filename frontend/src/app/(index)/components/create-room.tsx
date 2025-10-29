@@ -1,43 +1,36 @@
 "use client"
 
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
-import {
-  adjectives,
-  animals,
-  colors,
-  names,
-  uniqueNamesGenerator,
-} from "unique-names-generator"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trpc } from "@/lib/trpc"
+import type { User } from "../../../../../backend/src/utils/redis-schema"
 
-export default function CreateRoom() {
-  const randomNumber = Math.floor(Math.random() * 100)
-  const randomUsername = uniqueNamesGenerator({
-    dictionaries: [adjectives, animals, names, colors],
-    style: "capital",
-    separator: "",
-    length: 2,
-  })
-  const placeholderUsername = `${randomUsername}${randomNumber}`
+type CreateRoomProps = {
+  user?: User
+  placeholderUsername: string
+}
 
-  const [username, setUsername] = useState("")
+export const CreateRoom: React.FC<CreateRoomProps> = ({
+  user,
+  placeholderUsername,
+}) => {
+  const [username, setUsername] = useState(user?.username ?? "")
 
   const searchParams = useSearchParams()
-  const roomCode = searchParams.get("invite")
+  const roomCode = searchParams.get("roomCode")
 
-  const loadUserName = useCallback(() => {
-    const username = window.sessionStorage.getItem("username")
-    if (username) {
-      setUsername(username)
-    }
-  }, [])
+  const authenticateMutation = trpc.mutationAuthenticate.useMutation({
+    onSuccess: () => {
+      if (roomCode) {
+        redirectToLobby(roomCode)
+        return
+      }
 
-  const saveUsername = () => {
-    window.sessionStorage.setItem("username", username || placeholderUsername)
-  }
+      createRoomMutation.mutate()
+    },
+  })
 
   const redirectToLobby = (roomCode: string) => {
     window.location.href = `/lobby/${roomCode}`
@@ -45,14 +38,9 @@ export default function CreateRoom() {
 
   const createRoomMutation = trpc.mutationRoomCreate.useMutation({
     onSuccess: ({ roomCode }) => {
-      saveUsername()
       redirectToLobby(roomCode)
     },
   })
-
-  useEffect(() => {
-    loadUserName()
-  }, [loadUserName])
 
   return (
     <div className="space-y-3">
@@ -67,8 +55,9 @@ export default function CreateRoom() {
           size="lg"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => {
-            saveUsername()
-            redirectToLobby(roomCode)
+            authenticateMutation.mutate({
+              username: username || placeholderUsername,
+            })
           }}
         >
           Join Room
@@ -78,7 +67,9 @@ export default function CreateRoom() {
           size="lg"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           onClick={() => {
-            createRoomMutation.mutate()
+            authenticateMutation.mutate({
+              username: username || placeholderUsername,
+            })
           }}
         >
           Create Room

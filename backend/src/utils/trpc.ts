@@ -1,4 +1,4 @@
 import { initTRPC } from "@trpc/server";
-import type { createContext } from "./context.js";
+import type { Context } from "./context.js";
 
-export const t = initTRPC.context<ReturnType<typeof createContext>>().create();
+export const t = initTRPC.context<Context>().create();

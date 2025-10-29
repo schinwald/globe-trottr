@@ -2,7 +2,7 @@
 
 import { Settings, UserPlus } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useLayoutEffect, useState } from "react"
+import { useState } from "react"
 import { Lobby } from "@/components/FriendsPanel"
 import { Floater } from "@/components/floater"
 import GameControls from "@/components/GameControls"
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import WorldMap from "@/components/WorldMap"
 import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
+import type { User } from "../../../../../../backend/src/utils/redis-schema"
 
 const logoUrl = "/logo.svg"
 
@@ -31,17 +32,11 @@ const Game: React.FC = () => {
   } = useGameState()
 
   const { roomCode } = useParams<Params>()
-  const [users, setUsers] = useState<string[]>([])
-
-  useLayoutEffect(() => {
-    const username = window.sessionStorage.getItem("username")
-    if (!username) window.location.href = `/?invite=${roomCode}`
-  }, [roomCode])
+  const [users, setUsers] = useState<(User & { id: string })[]>([])
 
   trpc.subscriptionRoomConnections.useSubscription(
     {
       roomCode,
-      username: window.sessionStorage.getItem("username") ?? "",
     },
     {
       onData: ({ users }) => {
