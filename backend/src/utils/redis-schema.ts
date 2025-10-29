@@ -184,7 +184,7 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 	const connections = await redis.decr(ROOM_CONNECTION_KEY(roomCode, userId));
 	if (connections > 0) return false;
 
-	redis.deleteUserAndPromoteOther(ROOM_USERS_KEY(roomCode), userId);
+	await redis.deleteUserAndPromoteOther(ROOM_USERS_KEY(roomCode), userId);
 	return true;
 };
 
