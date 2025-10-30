@@ -3,6 +3,8 @@
 import { SendIcon } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
+import { toast } from "sonner"
+import { useGuessNotification } from "@/app/lobby/[roomCode]/components/guess"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trpc } from "@/lib/trpc"
@@ -22,6 +24,7 @@ const GameControls: React.FC<GameControlsProps> = ({
 }) => {
   const [guess, setGuess] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
+  const triggerUserGuess = useGuessNotification()
 
   useEffect(() => {
     if (gameStarted && !gameOver && inputRef.current) {
@@ -37,7 +40,7 @@ const GameControls: React.FC<GameControlsProps> = ({
     },
     {
       onData: (data) => {
-        console.log(data)
+        triggerUserGuess(data)
       },
       enabled: gameStarted && !gameOver,
     }
@@ -57,7 +60,9 @@ const GameControls: React.FC<GameControlsProps> = ({
         />
         <Button
           disabled={gameOver}
-          onClick={() => guessCountryMutation.mutate({ roomCode, guess })}
+          onClick={() => {
+            return guessCountryMutation.mutate({ roomCode, guess })
+          }}
         >
           <SendIcon className="size-4" />
         </Button>

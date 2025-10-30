@@ -5,6 +5,7 @@ import type React from "react"
 import { GiPlainCircle as CircleIcon } from "react-icons/gi"
 import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
+import { Guess } from "@/app/lobby/[roomCode]/components/guess"
 import type { User } from "../../../backend/src/utils/redis-schema"
 
 interface LobbyProps {
@@ -26,21 +27,21 @@ const Lobby: React.FC<LobbyProps> = ({ users }) => {
             {users.length} / {maxPlayers}
           </span>
         </div>
-        <div className="flex flex-col gap-2 overflow-y-auto">
+        <div className="flex flex-col gap-2">
           {users.map((user) => {
             return (
-              <div
-                key={user.id}
-                className="border border-primary rounded-lg px-4 py-1 h-12 flex justify-between items-center"
-              >
-                <div className="flex items-center gap-2">
-                  <CircleIcon className="size-4 text-primary" />
-                  <span className="text-sm">{user.username}</span>
+              <Guess.Root key={user.id}>
+                <div className="relative border border-primary rounded-lg px-4 py-1 h-12 flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <CircleIcon className="size-4 text-primary" />
+                    <span className="text-sm">{user.username}</span>
+                  </div>
+                  {user.role === "host" ? (
+                    <CrownIcon className="size-4 text-yellow-500" />
+                  ) : null}
+                  <Guess.Notification userId={user.id} />
                 </div>
-                {user.role === "host" ? (
-                  <CrownIcon className="size-4 text-yellow-500" />
-                ) : null}
-              </div>
+              </Guess.Root>
             )
           })}
           {Array.from({ length: maxPlayers - users.length }).map((_, i) => {

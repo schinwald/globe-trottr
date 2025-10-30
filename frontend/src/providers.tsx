@@ -1,13 +1,17 @@
 "use client"
 
 import { QueryClientProvider } from "@tanstack/react-query"
+import { Toaster } from "./components/ui/toaster"
 import { trpc } from "./lib/trpc"
 import { client, queryClient } from "./trpc"
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   return (
     <trpc.Provider client={client} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <Toaster />
+      </QueryClientProvider>
     </trpc.Provider>
   )
 }
