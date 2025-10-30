@@ -3,7 +3,6 @@
 import { SendIcon } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
-import { toast } from "sonner"
 import { useGuessNotification } from "@/app/lobby/[roomCode]/components/guess"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,15 +31,19 @@ const GameControls: React.FC<GameControlsProps> = ({
     }
   }, [gameStarted, gameOver])
 
-  const guessCountryMutation = trpc.mutationUserGuessCountry.useMutation()
+  const userMessageMutation = trpc.mutationUserMessage.useMutation({
+    onMutate: () => {
+      setGuess("")
+    },
+  })
 
-  trpc.subscriptionCountryGuesses.useSubscription(
+  trpc.subscriptionUserMessages.useSubscription(
     {
       roomCode,
     },
     {
       onData: (data) => {
-        triggerUserGuess(data)
+        triggerUserGuess({ userId: data.userId, guess: data.guess })
       },
       enabled: gameStarted && !gameOver,
     }
@@ -54,6 +57,11 @@ const GameControls: React.FC<GameControlsProps> = ({
           type="text"
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") {
+              userMessageMutation.mutate({ roomCode, guess })
+            }
+          }}
           placeholder="Enter a country name..."
           disabled={gameOver}
           autoComplete="off"
@@ -61,7 +69,7 @@ const GameControls: React.FC<GameControlsProps> = ({
         <Button
           disabled={gameOver}
           onClick={() => {
-            return guessCountryMutation.mutate({ roomCode, guess })
+            return userMessageMutation.mutate({ roomCode, guess })
           }}
         >
           <SendIcon className="size-4" />

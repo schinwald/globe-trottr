@@ -17,7 +17,6 @@ export interface GameState {
   currentHint: string | null
   guessedCountry: Country | null
   gameOptions: GameOptions
-  friends: Friend[]
   notifications: Notification[]
   countdown: number | null
 }
@@ -43,14 +42,6 @@ export type MultiplayerGameSettings = {
 export type GameSettings = Partial<
   SingleplayerGameSettings | MultiplayerGameSettings
 >
-
-export interface Friend {
-  id: string
-  name: string
-  online: boolean
-  score?: number
-  lastGuess?: string
-}
 
 export interface Notification {
   id: string

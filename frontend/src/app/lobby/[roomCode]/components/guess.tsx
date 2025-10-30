@@ -90,9 +90,10 @@ export const Notification: React.FC<PortalProps> = ({
             {...props}
           >
             <motion.div
-              initial={{ opacity: 0, translateX: "-10px", scale: 0.8 }}
+              className="origin-left"
+              initial={{ opacity: 0, translateX: "-10px", scale: 0.7 }}
               animate={{ opacity: 1, translateX: "0px", scale: 1 }}
-              exit={{ opacity: 0 }}
+              exit={{ opacity: 0, scale: 0.8 }}
               transition={{
                 duration: 0.1,
                 onComplete: () => {
@@ -107,7 +108,7 @@ export const Notification: React.FC<PortalProps> = ({
             >
               <div className="flex flex-row items-center ml-2">
                 <ArrowLeftIcon className="size-5 -m-2 text-primary" />
-                <div className="rounded-full px-4 py-2 bg-primary text-white border-gray-300">
+                <div className="rounded-full px-4 py-2 bg-primary text-white border-gray-300 whitespace-nowrap">
                   {data.guess}
                 </div>
               </div>

@@ -15,7 +15,7 @@ import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
 import type { ErrorType } from "@/utils/errors"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
-import { Guess, useGuessNotification } from "./guess"
+import { Guess } from "./guess"
 
 const logoUrl = "/logo.svg"
 
@@ -133,7 +133,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
           />
         </div>
         <div className="col-span-3 h-[590px]">
-          <GameStats countries={gameState.countries} score={gameState.score} />
+          <GameStats roomCode={roomCode} />
         </div>
         <GameModeModal
           isOpen={isModalOpen}

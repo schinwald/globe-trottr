@@ -5,7 +5,7 @@ import {
 	getRoomUsers,
 	joinRoom,
 	leaveRoom,
-	publishRoomUpdate,
+	publishRoomConnection,
 	ROOM_CONNECTION_CHANNEL,
 	type User,
 } from "../utils/redis-schema.js";
@@ -28,7 +28,7 @@ export const procedure = t.procedure
 
 			const payload = { users };
 
-			await publishRoomUpdate(input.roomCode, "join", payload);
+			await publishRoomConnection(input.roomCode, "join", payload);
 			yield payload;
 
 			for await (const data of iterator) {
@@ -45,7 +45,7 @@ export const procedure = t.procedure
 
 			const users = await getRoomUsers(input.roomCode);
 
-			await publishRoomUpdate(input.roomCode, "leave", {
+			await publishRoomConnection(input.roomCode, "leave", {
 				users,
 			});
 

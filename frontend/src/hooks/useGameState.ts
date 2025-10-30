@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
-import { mockFriends } from "../constants/mockData"
-import { countries as countriesData } from "../data/countries"
+import { countries as countriesData } from "../../../backend/src/utils/countries"
 import type { GameSettings, GameState } from "../types"
-import { getHintForRandomCountry } from "../utils/hints"
 import { normalizeCountryName } from "../utils/normalize"
 
 const DEFAULT_GAME_TIME = 300 // 5 minutes in seconds
@@ -31,7 +29,6 @@ export function useGameState() {
       searchAccuracy: "fuzzy",
       maxHints: 3,
     },
-    friends: [],
     notifications: [],
     countdown: null,
   })
@@ -55,7 +52,6 @@ export function useGameState() {
         searchAccuracy: "fuzzy",
         maxHints: 3,
       },
-      friends: mockFriends,
       notifications: [],
       countdown: 3,
     }))
@@ -104,17 +100,6 @@ export function useGameState() {
       }
     })
   }
-
-  const requestHint = useCallback(() => {
-    setGameState((prev) => {
-      const hint = getHintForRandomCountry(prev.countries)
-      return {
-        ...prev,
-        hintsUsed: prev.hintsUsed + 1,
-        currentHint: hint,
-      }
-    })
-  }, [])
 
   // Countdown effect
   useEffect(() => {
@@ -171,8 +156,6 @@ export function useGameState() {
     handleOptionsChange,
     restartGame,
     handleGuess,
-    requestHint,
-    hintsUsed: gameState.hintsUsed,
     countdown: gameState.countdown,
   }
 }

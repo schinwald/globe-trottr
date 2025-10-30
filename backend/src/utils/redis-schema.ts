@@ -2,6 +2,7 @@
 
 import { TRPCError } from "@trpc/server";
 import Sqids from "sqids";
+import { validateGuess } from "./logic.js";
 import redis from "./redis.js";
 
 const sqids = new Sqids({ minLength: 6 });
@@ -68,7 +69,9 @@ export const USER_KEY = (id: string) => `user:${id}`;
 // Channels
 export const ROOM_CONNECTION_CHANNEL = (code: string) =>
 	`room:${code}:connections`;
-export const ROOM_GUESSES_CHANNEL = (code: string) => `room:${code}:guesses`;
+export const USER_MESSAGES_CHANNEL = (code: string) => `room:${code}:messages`;
+export const ROOM_COUNTRY_STATUSES_CHANNEL = (code: string) =>
+	`room:${code}:country-statuses`;
 
 export type User = {
 	username: string;
@@ -190,9 +193,9 @@ export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
 
 // Getting all users in a room
 export const getRoomUsers = async (roomCode: string) => {
-	const userIds = await redis.hgetall(ROOM_USERS_KEY(roomCode));
+	const usersMapping = await redis.hgetall(ROOM_USERS_KEY(roomCode));
 	const users = await Promise.all(
-		Object.entries(userIds).map(async ([id, role]) => {
+		Object.entries(usersMapping).map(async ([id, role]) => {
 			const user = await getUser(id);
 			return {
 				id,
@@ -202,6 +205,11 @@ export const getRoomUsers = async (roomCode: string) => {
 		}),
 	);
 	return users;
+};
+
+export type GuessedCountry = {
+	userId: string;
+	timestamp: number;
 };
 
 type GuessCountryArgs = {
@@ -219,32 +227,60 @@ export const guessCountry = async ({
 	if (!exists)
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
-	await redis.rpush(
+	const country = validateGuess(guess);
+	if (!country) return false;
+
+	await redis.hsetnx(
 		ROOM_GUESSES_KEY(roomCode),
+		country.iso,
 		JSON.stringify({
 			userId,
-			guess,
 			timestamp: Date.now(),
-		}),
+		} satisfies GuessedCountry),
 	);
+
+	return true;
+};
+
+export const getGuessedCountries = async (roomCode: string) => {
+	const exists = await redis.exists(ROOM_KEY(roomCode));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
+
+	const guessedCountriesMapping = await redis.hgetall(
+		ROOM_GUESSES_KEY(roomCode),
+	);
+	return guessedCountriesMapping as unknown as Record<string, GuessedCountry>;
 };
 
 /** PUBLISHERS **/
 
-// Publish guessed country to a room
-export const publishGuessedCountry = async (
+// Publish country statuses to a room
+export const publishRoomCountryStatuses = async (
 	roomCode: string,
-	event: "guess",
+	event: "country-statuses",
 	data: any,
 ) => {
 	await redis.publish(
-		ROOM_GUESSES_CHANNEL(roomCode),
+		ROOM_COUNTRY_STATUSES_CHANNEL(roomCode),
+		JSON.stringify({ event, ...data }),
+	);
+};
+
+// Publish user messages to a room
+export const publishUserMessage = async (
+	roomCode: string,
+	event: "message",
+	data: any,
+) => {
+	await redis.publish(
+		USER_MESSAGES_CHANNEL(roomCode),
 		JSON.stringify({ event, ...data }),
 	);
 };
 
 // Publish updates to a room
-export const publishRoomUpdate = async (
+export const publishRoomConnection = async (
 	roomCode: string,
 	event: "join" | "leave",
 	data: any,
