@@ -12,7 +12,7 @@ export const procedure = t.procedure
 	.input(
 		z.object({
 			roomCode: z.string(),
-			guess: z.string(),
+			guess: z.string().min(1),
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
