@@ -91,7 +91,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
     },
     {
       onData: (data) => {
-        console.log(data.startedAt)
+        if (!data.startedAt) return
         preStartTimerRef.current?.start(data.startedAt)
         timerRef.current?.start(data.startedAt)
         setIsActiveGame(true)
