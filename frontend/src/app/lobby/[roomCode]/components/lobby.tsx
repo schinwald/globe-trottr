@@ -42,13 +42,15 @@ const Lobby: React.FC<LobbyProps> = ({ roomCode, users }) => {
             {users.map((user) => {
               return (
                 <Guess.Root key={user.id}>
-                  <div className="relative border border-primary rounded-lg px-4 py-1 h-12 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <CircleIcon className="size-4 text-primary" />
-                      <span className="text-sm">{user.username}</span>
+                  <div className="relative border border-primary rounded-lg px-4 py-1 h-12 flex items-center justify-between">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <CircleIcon className="shrink-0 size-4 text-primary" />
+                      <span className="shrink text-sm truncate">
+                        {user.username}
+                      </span>
                     </div>
                     {user.role === "host" ? (
-                      <CrownIcon className="size-4 text-yellow-500" />
+                      <CrownIcon className="ml-2 shrink-0 size-4 text-yellow-500" />
                     ) : null}
                     <Guess.Notification userId={user.id} />
                   </div>
