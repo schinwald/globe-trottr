@@ -25,15 +25,8 @@ interface GameProps {
 
 const Game: React.FC<GameProps> = ({ roomCode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const {
-    settings,
-    setSettings,
-    gameState,
-    startGame,
-    handleOptionsChange,
-    restartGame,
-    countdown,
-  } = useGameState()
+  const { settings, setSettings, gameState, handleOptionsChange, countdown } =
+    useGameState()
 
   const [users, setUsers] = useState<
     (User & { id: string; role: "host" | "guest" })[]
@@ -114,15 +107,10 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
         </div>
         <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-6 h-[590px]">
           <WorldMap
-            guessedCountry={gameState.guessedCountry}
+            roomCode={roomCode}
             countries={gameState.countries}
-            score={gameState.score}
-            totalCountries={gameState.totalCountries}
             timeLeft={gameState.timeLeft}
-            gameStarted={gameState.gameStarted}
             gameOver={gameState.gameOver}
-            onStartGame={startGame}
-            onRestartGame={restartGame}
             countdown={countdown}
           />
           <GameControls

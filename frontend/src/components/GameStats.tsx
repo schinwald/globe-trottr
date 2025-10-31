@@ -14,7 +14,7 @@ const GameStats: React.FC<GameStatsProps> = ({ roomCode }) => {
     (Country & { guessed: boolean })[]
   >([])
 
-  trpc.subscriptionRoomCountryStatuses.useSubscription(
+  trpc.subscriptionGameCountryStatuses.useSubscription(
     {
       roomCode,
     },

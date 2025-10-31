@@ -2,20 +2,23 @@
 
 "use client"
 
-import { MapPinIcon, Play, RefreshCw, Timer } from "lucide-react"
-import dynamic from "next/dynamic"
+import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import type { GlobeMethods } from "react-globe.gl"
+import Globe from "react-globe.gl"
 import { Button } from "@/components/ui/button"
 import pointsData from "../data/world.json"
 
-const Globe = dynamic(() => import("react-globe.gl"), { ssr: false })
-
 const globeImageUrl = "/world.png"
 
+import {
+  PreStartTimer,
+  type PreStartTimerRef,
+} from "@/app/lobby/[roomCode]/components/pre-start-timer"
+import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
+import { trpc } from "@/lib/trpc"
 import type { Country } from "../types"
-import { AnimateCountdown } from "./AnimateCountdown"
 
 const countryPositions: Record<string, [number, number, number]> = {}
 
@@ -48,62 +51,93 @@ for (const feature of pointsData.features) {
       }
     }
   }
+  // TODO: calculate the mean instead of the average
   countryPositions[feature.properties.ADM0_A3_IS] = average
 }
 
 interface WorldMapProps {
-  guessedCountry: Country | null
+  roomCode: string
   countries: Country[]
-  score: number
-  totalCountries: number
   timeLeft: number
   gameOver: boolean
-  gameStarted: boolean
-  onStartGame: () => void
-  onRestartGame: () => void
   countdown: number | null
 }
 
 const WorldMap: React.FC<WorldMapProps> = ({
-  guessedCountry,
-  countries,
-  score,
-  totalCountries,
-  timeLeft,
+  roomCode,
   gameOver,
-  gameStarted,
-  onStartGame,
-  onRestartGame,
   countdown,
 }) => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
+  const preStartTimerRef = useRef<PreStartTimerRef>(null)
+  const timerRef = useRef<TimerRef>(null)
+
+  const [countries, setCountries] = useState<Country[]>([])
+  const [isActiveGame, setIsActiveGame] = useState(false)
+
+  const gameStartMutation = trpc.mutationGameStart.useMutation({
+    onSuccess: () => {},
+  })
+
+  // 3 second delay
+  // 1 second for network latency
+  // 1 second for Math.floor
+  const delay = 1000 * 5
+  const duration = 1000 * 60 * 5
+
+  trpc.subscriptionGameStatuses.useSubscription(
+    {
+      roomCode,
+    },
+    {
+      onData: (data) => {
+        console.log(data.startedAt)
+        preStartTimerRef.current?.start(data.startedAt)
+        timerRef.current?.start(data.startedAt)
+        setIsActiveGame(true)
+      },
+    }
+  )
+
+  // trpc.subscriptionGameSettings.useSubscription(
+  //   {
+  //     roomCode,
+  //   },
+  //   {}
+  // )
+
+  trpc.subscriptionUserMessages.useSubscription(
+    {
+      roomCode,
+    },
+    {
+      onData: (data) => {
+        if (!globeRef.current) return
+        if (!data.country) return
+        const [lng, lat] = countryPositions[data.country.iso]
+        globeRef.current.pointOfView({ lat, lng }, 1000)
+      },
+    }
+  )
+
+  trpc.subscriptionGameCountryStatuses.useSubscription(
+    {
+      roomCode,
+    },
+    {
+      onData: (data) => {
+        setCountries(data.countries)
+      },
+    }
+  )
+
+  const guessedCountries = countries.filter((country) => country.guessed)
   const guessed = countries
     .filter((country) => country.guessed)
     .reduce((accumulator: Record<string, Country>, current) => {
       if (accumulator) accumulator[current.iso] = current
       return accumulator
     }, {})
-
-  useEffect(() => {
-    if (!guessedCountry) return
-    if (!globeRef.current) return
-    const [lng, lat] = countryPositions[guessedCountry.iso]
-    globeRef.current.pointOfView({ lat, lng }, 1000)
-  }, [guessedCountry])
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`
-  }
-
-  const getCountdown = () => {
-    if (countdown === null) return undefined
-    if (countdown === 0) return "GO!"
-    return countdown.toString()
-  }
-
-  const guessedCountries = countries.filter((country) => country.guessed)
 
   const normalizedCountryCode = (countryCode: string) => {
     if (countryCode === "GRL") return "DNK" // Greenland -> Denmark
@@ -115,42 +149,52 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
-      <div className="absolute top-0 p-6 flex items-center">
-        {guessedCountry?.name ? (
-          <span className="font-bold text-green-500">
-            {guessedCountry.name}
-          </span>
-        ) : null}
-      </div>
-      {!gameStarted && !gameOver && countdown === null ? (
+      {!isActiveGame && countdown === null ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <Button size="lg" onClick={onStartGame}>
-            <Play className="size-4 mr-1" />
+          <Button
+            size="lg"
+            onClick={() => {
+              gameStartMutation.mutate({
+                roomCode,
+              })
+            }}
+          >
+            <PlayIcon className="size-4 mr-1" />
             <span className="text-lg font-bold">Start Game</span>
           </Button>
         </div>
       ) : null}
-      <div className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none">
-        <AnimateCountdown
-          value={getCountdown()}
-          className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
-        />
-      </div>
       {gameOver ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <Button onClick={onRestartGame} size="lg">
-            <RefreshCw className="size-4 mr-2" />
+          <Button
+            size="lg"
+            onClick={() => {
+              gameStartMutation.mutate({
+                roomCode,
+              })
+            }}
+          >
+            <RefreshIcon className="size-4 mr-1" />
             <span className="text-lg font-bold">Play Again?</span>
           </Button>
         </div>
       ) : null}
+      <div className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none">
+        <PreStartTimer
+          ref={preStartTimerRef}
+          className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
+          duration={delay}
+        />
+      </div>
       <div className="absolute left-0 bottom-0 p-6 z-50 text-white">
-        <div className="flex flex-col justify- items-start w-full">
-          <div className="flex items-center">
-            <Timer className="mr-1 text-blue-600" size={20} />
-            <span className="text-xl font-bold">{formatTime(timeLeft)}</span>
-          </div>
-        </div>
+        <Timer
+          ref={timerRef}
+          duration={duration}
+          delay={delay}
+          onComplete={() => {
+            setIsActiveGame(false)
+          }}
+        />
       </div>
       <div className="col-span-full row-span-full">
         <Globe

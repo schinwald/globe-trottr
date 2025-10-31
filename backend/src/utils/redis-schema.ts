@@ -69,7 +69,10 @@ export const USER_KEY = (id: string) => `user:${id}`;
 // Channels
 export const ROOM_CONNECTION_CHANNEL = (code: string) =>
 	`room:${code}:connections`;
-export const USER_MESSAGES_CHANNEL = (code: string) => `room:${code}:messages`;
+export const GAME_STATUSES_CHANNEL = (code: string) =>
+	`room:${code}:game-states`;
+export const USER_MESSAGES_CHANNEL = (code: string) =>
+	`room:${code}:user-messages`;
 export const ROOM_COUNTRY_STATUSES_CHANNEL = (code: string) =>
 	`room:${code}:country-statuses`;
 
@@ -207,6 +210,37 @@ export const getRoomUsers = async (roomCode: string) => {
 	return users;
 };
 
+type StartGameArgs = {
+	roomCode: string;
+};
+
+// Starting a game
+export const startGame = async (options: StartGameArgs) => {
+	const startedAt = Date.now();
+
+	await redis.hset(ROOM_KEY(options.roomCode), {
+		startedAt,
+	});
+
+	await redis.del(ROOM_GUESSES_KEY(options.roomCode));
+
+	return startedAt;
+};
+
+type GameStatus = {
+	startedAt: number;
+};
+
+// Getting the game status
+export const getGameStatus = async (roomCode: string) => {
+	const exists = await redis.exists(ROOM_KEY(roomCode));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
+
+	const data = await redis.hgetall(ROOM_KEY(roomCode));
+	return data as unknown as GameStatus;
+};
+
 export type GuessedCountry = {
 	userId: string;
 	timestamp: number;
@@ -218,6 +252,7 @@ type GuessCountryArgs = {
 	guess: string;
 };
 
+// Guessing a country
 export const guessCountry = async ({
 	roomCode,
 	userId,
@@ -228,7 +263,7 @@ export const guessCountry = async ({
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	const country = validateGuess(guess);
-	if (!country) return false;
+	if (!country) return null;
 
 	await redis.hsetnx(
 		ROOM_GUESSES_KEY(roomCode),
@@ -239,9 +274,10 @@ export const guessCountry = async ({
 		} satisfies GuessedCountry),
 	);
 
-	return true;
+	return country;
 };
 
+// Getting all guessed countries
 export const getGuessedCountries = async (roomCode: string) => {
 	const exists = await redis.exists(ROOM_KEY(roomCode));
 	if (!exists)
@@ -256,9 +292,21 @@ export const getGuessedCountries = async (roomCode: string) => {
 /** PUBLISHERS **/
 
 // Publish country statuses to a room
-export const publishRoomCountryStatuses = async (
+export const publishGameStatus = async (
 	roomCode: string,
-	event: "country-statuses",
+	event: "started",
+	data: any,
+) => {
+	await redis.publish(
+		GAME_STATUSES_CHANNEL(roomCode),
+		JSON.stringify({ event, ...data }),
+	);
+};
+
+// Publish country statuses to a room
+export const publishGameCountryStatus = async (
+	roomCode: string,
+	event: "country-statuss",
 	data: any,
 ) => {
 	await redis.publish(

@@ -45,7 +45,6 @@ const GameControls: React.FC<GameControlsProps> = ({
       onData: (data) => {
         triggerUserGuess({ userId: data.userId, guess: data.guess })
       },
-      enabled: gameStarted && !gameOver,
     }
   )
 

@@ -3,7 +3,7 @@ import { countries } from "../utils/countries.js";
 import {
 	getGuessedCountries,
 	guessCountry,
-	publishRoomCountryStatuses,
+	publishGameCountryStatus,
 	publishUserMessage,
 } from "../utils/redis-schema.js";
 import { t } from "../utils/trpc.js";
@@ -16,7 +16,7 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
-		const isCorrect = await guessCountry({
+		const country = await guessCountry({
 			roomCode: input.roomCode,
 			userId: ctx.info.user.id,
 			guess: input.guess,
@@ -28,11 +28,11 @@ export const procedure = t.procedure
 		await publishUserMessage(input.roomCode, "message", {
 			userId: ctx.info.user.id,
 			guess: input.guess,
-			isCorrect,
+			country,
 		});
 		ctx.log.info({ input }, "Publishing user message to room");
 
-		await publishRoomCountryStatuses(input.roomCode, "country-statuses", {
+		await publishGameCountryStatus(input.roomCode, "country-statuses", {
 			countries: countries.map((country) => {
 				return {
 					...country,

@@ -1,3 +1,4 @@
+"use client"
 import { useCallback, useEffect, useState } from "react"
 import { countries as countriesData } from "../../../backend/src/utils/countries"
 import type { GameSettings, GameState } from "../types"

@@ -21,7 +21,7 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
   const searchParams = useSearchParams()
   const roomCode = searchParams.get("roomCode")
 
-  const authenticateMutation = trpc.mutationAuthenticate.useMutation({
+  const authenticateMutation = trpc.mutationUserAuthenticate.useMutation({
     onSuccess: () => {
       if (roomCode) {
         redirectToLobby(roomCode)
