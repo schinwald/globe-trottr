@@ -1,26 +1,36 @@
 "use client"
 
-import { Users } from "lucide-react"
+import {
+  Settings as SettingsIcon,
+  UserPlus as UserPlusIcon,
+  Users as UsersIcon,
+} from "lucide-react"
 import type React from "react"
+import { useState } from "react"
 import { GiPlainCircle as CircleIcon } from "react-icons/gi"
 import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
 import { Guess } from "@/app/lobby/[roomCode]/components/guess"
+import { SettingsModal } from "@/app/lobby/[roomCode]/components/settings-modal"
 import type { User } from "../../../backend/src/utils/redis-schema"
+import { Floater } from "./floater"
+import { Button } from "./ui/button"
 
 interface LobbyProps {
+  roomCode: string
   users: (User & { id: string; role: "host" | "guest" })[]
 }
 
-const Lobby: React.FC<LobbyProps> = ({ users }) => {
+const Lobby: React.FC<LobbyProps> = ({ roomCode, users }) => {
   const maxPlayers = 6
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <div className="bg-white rounded-xl shadow-xl border border-gray-300 h-full">
       <div className="w-full p-4 flex flex-col justify-center items-between text-left gap-4">
         <div className="flex justify-between">
           <header className="flex items-center">
-            <Users className="mr-2 text-blue-600" size={20} />
+            <UsersIcon className="size-5 mr-2 text-blue-600" />
             <h2 className="font-medium">Lobby</h2>
           </header>
           <span>
@@ -58,7 +68,38 @@ const Lobby: React.FC<LobbyProps> = ({ users }) => {
             )
           })}
         </div>
+        <Floater.Root>
+          <Floater.Trigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `localhost:3000/lobby/${roomCode}`
+                )
+              }}
+            >
+              <UserPlusIcon className="size-5" />
+              Invite Friends
+            </Button>
+          </Floater.Trigger>
+          <Floater.Portal>
+            <p className="text-sm whitespace-nowrap text-primary">Copied!</p>
+          </Floater.Portal>
+        </Floater.Root>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsModalOpen(true)}
+        >
+          Settings
+          <SettingsIcon className="size-5" />
+        </Button>
       </div>
+      <SettingsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   )
 }

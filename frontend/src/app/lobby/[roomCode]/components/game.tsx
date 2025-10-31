@@ -1,15 +1,11 @@
 "use client"
 
-import { Settings, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { Lobby } from "@/app/lobby/[roomCode]/components/lobby"
 import ErrorModal from "@/components/ErrorModal"
-import { Lobby } from "@/components/FriendsPanel"
-import { Floater } from "@/components/floater"
 import GameControls from "@/components/GameControls"
-import GameModeModal from "@/components/GameModeModal"
 import GameStats from "@/components/GameStats"
-import { Button } from "@/components/ui/button"
 import WorldMap from "@/components/WorldMap"
 import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
@@ -24,9 +20,7 @@ interface GameProps {
 }
 
 const Game: React.FC<GameProps> = ({ roomCode }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const { settings, setSettings, gameState, handleOptionsChange, countdown } =
-    useGameState()
+  const { gameState, countdown } = useGameState()
 
   const [users, setUsers] = useState<
     (User & { id: string; role: "host" | "guest" })[]
@@ -61,49 +55,16 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
 
   return (
     <Guess.Provider>
+      <header className="flex flex-col items-center">
+        <div className="size-[199px] -mt-[25px] -mb-[80px] -mx-[100px]">
+          <Link href="/">
+            <img src={logoUrl} alt="Logo" className="w-full" />
+          </Link>
+        </div>
+      </header>
       <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
-        <div className="col-span-3 flex justify-start items-end">
-          <Floater.Root>
-            <Floater.Trigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `localhost:3000/lobby/${roomCode}`
-                  )
-                }}
-              >
-                <UserPlus className="size-5" />
-                Invite Friends
-              </Button>
-            </Floater.Trigger>
-            <Floater.Portal>
-              <p className="text-sm whitespace-nowrap text-primary">Copied!</p>
-            </Floater.Portal>
-          </Floater.Root>
-        </div>
-        <header className="col-span-6 flex flex-col items-center">
-          <div className="size-[199px] -mt-[25px] -mb-[100px] -mx-[100px]">
-            <Link href="/">
-              <img src={logoUrl} alt="Logo" className="w-full" />
-            </Link>
-          </div>
-        </header>
-        <div className="col-span-3 flex justify-end items-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Settings
-            <Settings className="size-5" />
-          </Button>
-        </div>
         <div className="col-span-3 h-[590px]">
-          <div className="flex flex-col h-full gap-5">
-            <Lobby users={users} />
-          </div>
+          <Lobby roomCode={roomCode} users={users} />
         </div>
         <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-6 h-[590px]">
           <WorldMap
@@ -123,14 +84,6 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
         <div className="col-span-3 h-[590px]">
           <GameStats roomCode={roomCode} />
         </div>
-        <GameModeModal
-          isOpen={isModalOpen}
-          settings={settings}
-          setSettings={setSettings}
-          options={gameState.gameOptions}
-          onOptionsChange={handleOptionsChange}
-          onClose={() => setIsModalOpen(false)}
-        />
         <ErrorModal
           isOpen={Boolean(error)}
           error={error}
