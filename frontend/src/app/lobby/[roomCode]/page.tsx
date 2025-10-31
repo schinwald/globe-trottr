@@ -21,7 +21,9 @@ async function App({ params }: Params) {
 
   return (
     <div className="min-h-screen py-8 px-2 sm:px-4 md:px-8">
-      <Game roomCode={params.roomCode} />
+      <div className="max-w-7xl mx-auto">
+        <Game roomCode={params.roomCode} />
+      </div>
     </div>
   )
 }
