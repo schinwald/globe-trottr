@@ -306,7 +306,7 @@ export const publishGameStatus = async (
 // Publish country statuses to a room
 export const publishGameCountryStatus = async (
 	roomCode: string,
-	event: "country-statuss",
+	event: "country-statuses",
 	data: any,
 ) => {
 	await redis.publish(
