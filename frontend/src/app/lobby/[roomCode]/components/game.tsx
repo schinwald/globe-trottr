@@ -63,10 +63,10 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
         </div>
       </header>
       <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
-        <div className="col-span-3 h-[590px]">
+        <div className="hidden sm:block sm:col-span-4 md:col-span-3 h-[590px]">
           <Lobby roomCode={roomCode} users={users} />
         </div>
-        <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-6 h-[590px]">
+        <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-12 sm:col-span-8 md:col-span-6 h-[590px]">
           <WorldMap
             roomCode={roomCode}
             countries={gameState.countries}
@@ -81,7 +81,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
             countries={gameState.countries}
           />
         </div>
-        <div className="col-span-3 h-[590px]">
+        <div className="col-span-3 hidden md:block h-[590px]">
           <GameStats roomCode={roomCode} />
         </div>
         <ErrorModal
