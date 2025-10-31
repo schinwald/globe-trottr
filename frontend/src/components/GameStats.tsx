@@ -48,7 +48,7 @@ const GameStats: React.FC<GameStatsProps> = ({ roomCode }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
-                className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm"
+                className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm truncate"
               >
                 {country.name}
               </motion.div>
