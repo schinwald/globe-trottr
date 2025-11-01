@@ -77,9 +77,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
   const [isActiveGame, setIsActiveGame] = useState(false)
   const { delay, duration } = useSettings()
 
-  const gameStartMutation = trpc.mutationGameStart.useMutation({
-    onSuccess: () => {},
-  })
+  const gameStartMutation = trpc.mutationGameStart.useMutation()
 
   trpc.subscriptionGameStatuses.useSubscription(
     {

@@ -2,6 +2,7 @@
 
 import { TRPCError } from "@trpc/server";
 import Sqids from "sqids";
+import { CONSTANTS } from "./constants.js";
 import { validateGuess } from "./logic.js";
 import redis from "./redis.js";
 
@@ -62,13 +63,15 @@ export const ROOM_KEY = (code: string) => `room:${code}`;
 export const ROOM_CONNECTION_KEY = (code: string, id: string) =>
 	`room:${code}user:${id}:connections`;
 export const ROOM_GUESSES_KEY = (code: string) => `room:${code}:guesses`;
-export const ROOM_SETTINGS_KEY = (code: string) => `room:${code}:settings`;
+export const GAME_SETTINGS_KEY = (code: string) => `room:${code}:settings`;
 export const ROOM_USERS_KEY = (code: string) => `room:${code}:users`;
 export const USER_KEY = (id: string) => `user:${id}`;
 
 // Channels
 export const ROOM_CONNECTION_CHANNEL = (code: string) =>
 	`room:${code}:connections`;
+export const GAME_SETTINGS_CHANGES_CHANNEL = (code: string) =>
+	`room:${code}:settings`;
 export const GAME_STATUSES_CHANNEL = (code: string) =>
 	`room:${code}:game-states`;
 export const USER_MESSAGES_CHANNEL = (code: string) =>
@@ -107,6 +110,12 @@ export const createRoom = async () => {
 	await redis.hset(ROOM_KEY(roomCode), {
 		createdAt: Date.now(),
 	} satisfies Room);
+
+	await redis.hset(GAME_SETTINGS_KEY(roomCode), {
+		maxPlayers: CONSTANTS.MAX_PLAYERS,
+		duration: CONSTANTS.DEFAULT_DURATION,
+	} satisfies GameSettings);
+
 	return roomCode;
 };
 
@@ -210,6 +219,45 @@ export const getRoomUsers = async (roomCode: string) => {
 	return users;
 };
 
+export type GameSettings = {
+	maxPlayers: number;
+	duration: number;
+};
+
+type ChangeGameSettingsArgs = {
+	roomCode: string;
+	userId: string;
+	settings: GameSettings;
+};
+
+// Changing game settings
+export const changeGameSettings = async ({
+	roomCode,
+	userId,
+	settings,
+}: ChangeGameSettingsArgs) => {
+	const exists = await redis.exists(ROOM_KEY(roomCode));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
+
+	const role = await redis.hget(ROOM_USERS_KEY(roomCode), userId);
+	if (role !== "host")
+		throw new TRPCError({ code: "UNAUTHORIZED", message: "Not a host" });
+
+	await redis.hset(GAME_SETTINGS_KEY(roomCode), settings);
+	return settings;
+};
+
+// Getting game settings
+export const getGameSettings = async (roomCode: string) => {
+	const exists = await redis.exists(ROOM_KEY(roomCode));
+	if (!exists)
+		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
+
+	const settings = await redis.hgetall(GAME_SETTINGS_KEY(roomCode));
+	return settings as unknown as GameSettings;
+};
+
 type StartGameArgs = {
 	roomCode: string;
 };
@@ -290,6 +338,17 @@ export const getGuessedCountries = async (roomCode: string) => {
 };
 
 /** PUBLISHERS **/
+
+export const publishGameSettingsChange = async (
+	roomCode: string,
+	event: "settings",
+	data: any,
+) => {
+	await redis.publish(
+		GAME_SETTINGS_CHANGES_CHANNEL(roomCode),
+		JSON.stringify({ event, ...data }),
+	);
+};
 
 // Publish country statuses to a room
 export const publishGameStatus = async (

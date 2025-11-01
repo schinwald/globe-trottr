@@ -1,0 +1,7 @@
+const MAX_PLAYERS = 6;
+const DEFAULT_DURATION = 1000 * 60 * 5;
+
+export const CONSTANTS = {
+	MAX_PLAYERS,
+	DEFAULT_DURATION,
+};

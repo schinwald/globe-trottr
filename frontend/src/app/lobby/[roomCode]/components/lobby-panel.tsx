@@ -83,8 +83,10 @@ const LobbyPanel: React.FC<LobbyProps> = ({ roomCode, users }) => {
                     )
                   }}
                 >
-                  <UserPlusIcon className="-ml-2 size-5" />
-                  Invite Friends
+                  <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
+                    <UserPlusIcon className="-ml-2 size-5" />
+                    Invite Friends
+                  </div>
                 </Button>
               </Floater.Trigger>
               <Floater.Portal>
@@ -98,8 +100,10 @@ const LobbyPanel: React.FC<LobbyProps> = ({ roomCode, users }) => {
               size="sm"
               onClick={() => setIsModalOpen(true)}
             >
-              <SettingsIcon className="-ml-2 size-5" />
-              Settings
+              <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
+                <SettingsIcon className="-ml-2 size-5" />
+                Settings
+              </div>
             </Button>
           </div>
         </div>

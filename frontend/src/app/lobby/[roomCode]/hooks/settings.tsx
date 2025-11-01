@@ -6,19 +6,19 @@ import {
   useContext,
   useState,
 } from "react"
+import { trpc } from "@/lib/trpc"
+import { useRoom } from "./room"
 
 type SettingsContext = {
   maxPlayers: number
   delay: number
   duration: number
-  setDuration: (duration: number) => void
 }
 
 const SettingsContext = createContext<SettingsContext>({
   maxPlayers: 0,
   delay: 0,
   duration: 0,
-  setDuration: () => {},
 })
 
 type SettingsProps = {
@@ -34,6 +34,18 @@ export const Provider: React.FC<SettingsProps> = ({
   children,
 }) => {
   const [duration, setDuration] = useState(defaultDuration)
+  const { roomCode } = useRoom()
+
+  trpc.subscriptionGameSettingsChanges.useSubscription(
+    {
+      roomCode,
+    },
+    {
+      onData: (data) => {
+        setDuration(data.duration)
+      },
+    }
+  )
 
   return (
     <SettingsContext.Provider
@@ -41,7 +53,6 @@ export const Provider: React.FC<SettingsProps> = ({
         maxPlayers,
         delay,
         duration,
-        setDuration,
       }}
     >
       {children}
@@ -53,7 +64,7 @@ export const useSettings = () => {
   const context = useContext(SettingsContext)
 
   if (!context) {
-    throw new Error("useSettings must be used within a SettingsProvider")
+    throw new Error("useSettings must be used within a Settings Provider")
   }
 
   return context

@@ -1,4 +1,5 @@
 import { Clock as ClockIcon } from "lucide-react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,6 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { trpc } from "@/lib/trpc"
+import { useRoom } from "../hooks/room"
 import { useSettings } from "../hooks/settings"
 
 interface GameModeModalProps {
@@ -21,8 +24,16 @@ interface GameModeModalProps {
 }
 
 const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
-  const { duration, setDuration } = useSettings()
-  console.log(duration)
+  const { roomCode } = useRoom()
+  const { duration: defaultDuration } = useSettings()
+  const [duration, setDuration] = useState(defaultDuration)
+
+  const gameSettingsChangeMutation =
+    trpc.mutationGameSettingsChange.useMutation({
+      onSuccess: () => {
+        onClose()
+      },
+    })
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -60,7 +71,12 @@ const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
           <Button
-            onClick={() => onClose()}
+            onClick={() => {
+              gameSettingsChangeMutation.mutate({
+                roomCode,
+                duration,
+              })
+            }}
             className="flex-1 py-2 px-4 flex items-center justify-center"
           >
             <span>Save</span>

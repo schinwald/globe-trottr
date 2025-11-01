@@ -1,5 +1,7 @@
 import { t } from "../utils/trpc.js";
 import { procedure as subscriptionGameCountryStatuses } from "./game-country-statuses.js";
+import { procedure as mutationGameSettingsChange } from "./game-settings-change.js";
+import { procedure as subscriptionGameSettingsChanges } from "./game-settings-changes.js";
 import { procedure as mutationGameStart } from "./game-start.js";
 import { procedure as subscriptionGameStatuses } from "./game-statuses.js";
 import { procedure as queryRoom } from "./room.js";
@@ -11,10 +13,12 @@ import { procedure as mutationUserMessage } from "./user-message.js";
 import { procedure as subscriptionUserMessages } from "./user-messages.js";
 
 export const appRouter = t.router({
+	subscriptionGameSettingsChanges,
 	subscriptionGameStatuses,
 	subscriptionGameCountryStatuses,
 	subscriptionRoomConnections,
 	subscriptionUserMessages,
+	mutationGameSettingsChange,
 	mutationGameStart,
 	mutationRoomCreate,
 	mutationUserMessage,

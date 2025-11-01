@@ -10,9 +10,9 @@ async function App() {
   const placeholderUsername = await getRandomUsername()
 
   return (
-    <div className="w-full h-full flex justify-center items-center">
-      <div className="max-w-md bg-white rounded-xl border border-gray-300 shadow-xl p-8 text-center flex flex-col gap-3">
-        <div className="size-[400px] mx-auto -my-[100px] pointer-events-none">
+    <div className="w-full h-screen flex justify-center items-center px-4">
+      <div className="-mt-20 sm:m-0 max-w-md w-full bg-white rounded-xl border border-gray-300 shadow-xl p-8 text-center flex flex-col gap-3 overflow-hidden">
+        <div className="size-[260px] sm:size-[320px] md:size-[400px] mx-auto -my-[60px] sm:-my-[80px] md:-my-[100px] pointer-events-none">
           <img
             src={logoUrl}
             alt="Globe Trotters Logo"
