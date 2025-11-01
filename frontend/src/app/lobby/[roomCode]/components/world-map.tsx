@@ -19,6 +19,7 @@ import {
 import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
 import { trpc } from "@/lib/trpc"
 import type { Country } from "@/types"
+import { useSettings } from "../hooks/settings"
 
 const countryPositions: Record<string, [number, number, number]> = {}
 
@@ -74,16 +75,11 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   const [countries, setCountries] = useState<Country[]>([])
   const [isActiveGame, setIsActiveGame] = useState(false)
+  const { delay, duration } = useSettings()
 
   const gameStartMutation = trpc.mutationGameStart.useMutation({
     onSuccess: () => {},
   })
-
-  // 3 second delay
-  // 1 second for network latency
-  // 1 second for Math.floor
-  const delay = 1000 * 5
-  const duration = 1000 * 60 * 5
 
   trpc.subscriptionGameStatuses.useSubscription(
     {

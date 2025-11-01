@@ -42,7 +42,7 @@ const LobbyPanel: React.FC<LobbyProps> = ({ roomCode, users }) => {
             {users.map((user) => {
               return (
                 <Guess.Root key={user.id}>
-                  <div className="relative border border-primary rounded-lg px-4 py-1 h-12 flex items-center justify-between">
+                  <div className="relative border border-gray-600 shadow-sm rounded-lg px-4 py-1 h-12 flex items-center justify-between">
                     <div className="flex items-center gap-2 overflow-hidden">
                       <CircleIcon className="shrink-0 size-4 text-primary" />
                       <span className="shrink text-sm truncate">
