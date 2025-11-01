@@ -17,6 +17,7 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
   placeholderUsername,
 }) => {
   const [username, setUsername] = useState(user?.username ?? "")
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const searchParams = useSearchParams()
   const roomCode = searchParams.get("roomCode")
@@ -33,6 +34,7 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
   })
 
   const redirectToLobby = (roomCode: string) => {
+    setIsRedirecting(true)
     window.location.href = `/lobby/${roomCode}`
   }
 
@@ -45,6 +47,7 @@ export const CreateRoom: React.FC<CreateRoomProps> = ({
   const getRoomMessage = () => {
     if (authenticateMutation.isPending) return "Creating User..."
     if (createRoomMutation.isPending) return "Creating Room..."
+    if (isRedirecting) return "Creating Room..."
     return "Create Room"
   }
 
