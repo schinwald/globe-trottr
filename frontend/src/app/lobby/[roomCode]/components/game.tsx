@@ -2,16 +2,16 @@
 
 import Link from "next/link"
 import { useState } from "react"
-import { Lobby } from "@/app/lobby/[roomCode]/components/lobby"
+import { LobbyPanel } from "@/app/lobby/[roomCode]/components/lobby-panel"
 import ErrorModal from "@/components/ErrorModal"
-import GameControls from "@/components/GameControls"
-import GameStats from "@/components/GameStats"
-import WorldMap from "@/components/WorldMap"
 import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
 import type { ErrorType } from "@/utils/errors"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
+import { CountryPanel } from "./country-panel"
 import { Guess } from "./guess"
+import { Messager } from "./messager"
+import { WorldMap } from "./world-map"
 
 const logoUrl = "/logo.svg"
 
@@ -64,7 +64,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
       </header>
       <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
         <div className="hidden sm:block sm:col-span-4 md:col-span-3 h-[590px]">
-          <Lobby roomCode={roomCode} users={users} />
+          <LobbyPanel roomCode={roomCode} users={users} />
         </div>
         <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-12 sm:col-span-8 md:col-span-6 h-[590px]">
           <WorldMap
@@ -74,7 +74,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
             gameOver={gameState.gameOver}
             countdown={countdown}
           />
-          <GameControls
+          <Messager
             roomCode={roomCode}
             gameStarted={gameState.gameStarted}
             gameOver={gameState.gameOver}
@@ -82,7 +82,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
           />
         </div>
         <div className="col-span-3 hidden md:block h-[590px]">
-          <GameStats roomCode={roomCode} />
+          <CountryPanel roomCode={roomCode} />
         </div>
         <ErrorModal
           isOpen={Boolean(error)}

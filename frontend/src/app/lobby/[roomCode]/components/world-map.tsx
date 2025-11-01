@@ -8,7 +8,7 @@ import { useRef, useState } from "react"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
 import { Button } from "@/components/ui/button"
-import pointsData from "../data/world.json"
+import pointsData from "@/data/world.json"
 
 const globeImageUrl = "/world.png"
 
@@ -18,7 +18,7 @@ import {
 } from "@/app/lobby/[roomCode]/components/pre-start-timer"
 import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
 import { trpc } from "@/lib/trpc"
-import type { Country } from "../types"
+import type { Country } from "@/types"
 
 const countryPositions: Record<string, [number, number, number]> = {}
 
@@ -265,4 +265,4 @@ const WorldMap: React.FC<WorldMapProps> = ({
   )
 }
 
-export default WorldMap
+export { WorldMap }

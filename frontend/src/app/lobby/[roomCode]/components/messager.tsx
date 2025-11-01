@@ -7,7 +7,7 @@ import { useGuessNotification } from "@/app/lobby/[roomCode]/components/guess"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trpc } from "@/lib/trpc"
-import type { Country } from "../types"
+import type { Country } from "@/types"
 
 interface GameControlsProps {
   roomCode: string
@@ -16,7 +16,7 @@ interface GameControlsProps {
   countries: Country[]
 }
 
-const GameControls: React.FC<GameControlsProps> = ({
+const Messager: React.FC<GameControlsProps> = ({
   roomCode,
   gameStarted,
   gameOver,
@@ -78,4 +78,4 @@ const GameControls: React.FC<GameControlsProps> = ({
   )
 }
 
-export default GameControls
+export { Messager }

@@ -10,7 +10,7 @@ import {
 import type { AppRouter } from "../../backend/src/router/index.js"
 
 const wsClient = createWSClient({
-  url: `ws://localhost:5003`,
+  url: `ws://${process.env.NEXT_PUBLIC_ORIGIN}:5003`,
 })
 
 export const queryClient = new QueryClient()
@@ -26,5 +26,5 @@ export const client = createTRPCClient<AppRouter>({
 })
 
 export const server = createTRPCProxyClient<AppRouter>({
-  links: [httpBatchLink({ url: "http://localhost:5000/api" })],
+  links: [httpBatchLink({ url: `http://localhost:5000/api` })],
 })

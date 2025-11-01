@@ -11,9 +11,9 @@ import { GiPlainCircle as CircleIcon } from "react-icons/gi"
 import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
 import { Guess } from "@/app/lobby/[roomCode]/components/guess"
+import { Floater } from "@/components/floater"
+import { Button } from "@/components/ui/button"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
-import { Floater } from "../../../../components/floater"
-import { Button } from "../../../../components/ui/button"
 import { SettingsModal } from "./settings-modal"
 
 interface LobbyProps {
@@ -21,7 +21,7 @@ interface LobbyProps {
   users: (User & { id: string; role: "host" | "guest" })[]
 }
 
-const Lobby: React.FC<LobbyProps> = ({ roomCode, users }) => {
+const LobbyPanel: React.FC<LobbyProps> = ({ roomCode, users }) => {
   const maxPlayers = 6
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -112,4 +112,4 @@ const Lobby: React.FC<LobbyProps> = ({ roomCode, users }) => {
   )
 }
 
-export { Lobby }
+export { LobbyPanel }

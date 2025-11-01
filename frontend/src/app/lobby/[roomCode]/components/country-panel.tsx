@@ -3,13 +3,13 @@ import { MapIcon } from "lucide-react"
 import type React from "react"
 import { useState } from "react"
 import { trpc } from "@/lib/trpc"
-import type { Country } from "../../../backend/src/utils/countries"
+import type { Country } from "../../../../../../backend/src/utils/countries"
 
 interface GameStatsProps {
   roomCode: string
 }
 
-const GameStats: React.FC<GameStatsProps> = ({ roomCode }) => {
+const CountryPanel: React.FC<GameStatsProps> = ({ roomCode }) => {
   const [countries, setCountries] = useState<
     (Country & { guessed: boolean })[]
   >([])
@@ -64,4 +64,4 @@ const GameStats: React.FC<GameStatsProps> = ({ roomCode }) => {
   )
 }
 
-export default GameStats
+export { CountryPanel }
