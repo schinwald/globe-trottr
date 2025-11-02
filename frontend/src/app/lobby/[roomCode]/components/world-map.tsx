@@ -76,6 +76,9 @@ const WorldMap: React.FC<WorldMapProps> = ({
   const [countries, setCountries] = useState<Country[]>([])
   const [isActiveGame, setIsActiveGame] = useState(false)
   const { delay, duration } = useSettings()
+  const [gameState, setGameState] = useState<"default" | "started" | "ended">(
+    "default"
+  )
 
   const gameStartMutation = trpc.mutationGameStart.useMutation()
 
@@ -88,17 +91,10 @@ const WorldMap: React.FC<WorldMapProps> = ({
         if (!data.startedAt) return
         preStartTimerRef.current?.start(data.startedAt)
         timerRef.current?.start(data.startedAt)
-        setIsActiveGame(true)
+        setGameState("started")
       },
     }
   )
-
-  // trpc.subscriptionGameSettings.useSubscription(
-  //   {
-  //     roomCode,
-  //   },
-  //   {}
-  // )
 
   trpc.subscriptionUserMessages.useSubscription(
     {
@@ -143,7 +139,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
 
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
-      {!isActiveGame && countdown === null ? (
+      {gameState === "default" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <Button
             size="lg"
@@ -158,7 +154,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
           </Button>
         </div>
       ) : null}
-      {gameOver ? (
+      {gameState === "ended" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <Button
             size="lg"
@@ -186,7 +182,7 @@ const WorldMap: React.FC<WorldMapProps> = ({
           duration={duration}
           delay={delay}
           onComplete={() => {
-            setIsActiveGame(false)
+            setGameState("ended")
           }}
         />
       </div>

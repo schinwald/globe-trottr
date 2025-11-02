@@ -1,8 +1,8 @@
 import z from "zod";
 import { type Country, countries } from "../utils/countries.js";
 import {
-	getGameSettings,
-	getGameStatus,
+	checkIsGameActive,
+	getGameState,
 	getGuessedCountries,
 	guessCountry,
 	publishGameCountryStatus,
@@ -18,18 +18,10 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
-		const status = await getGameStatus(input.roomCode);
-		const settings = await getGameSettings(input.roomCode);
-
-		const isActiveGame = (() => {
-			if (!status.startedAt) return false;
-			const endTime = status.startedAt + status.delay + settings.duration;
-			if (Date.now() > endTime) return false;
-			return true;
-		})();
+		const gameState = await getGameState(input.roomCode);
 
 		let country: Country | null = null;
-		if (isActiveGame) {
+		if (["in-progress"].includes(gameState)) {
 			country = await guessCountry({
 				roomCode: input.roomCode,
 				userId: ctx.info.user.id,

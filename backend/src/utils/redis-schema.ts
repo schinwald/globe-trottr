@@ -265,7 +265,11 @@ export const getGameSettings = async (roomCode: string) => {
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
 	const settings = await redis.hgetall(GAME_SETTINGS_KEY(roomCode));
-	return settings as unknown as GameSettings;
+	return {
+		maxPlayers: parseInt(settings.maxPlayers),
+		delay: parseInt(settings.delay),
+		duration: parseInt(settings.duration),
+	} satisfies GameSettings;
 };
 
 type StartGameArgs = {
@@ -295,8 +299,26 @@ export const getGameStatus = async (roomCode: string) => {
 	if (!exists)
 		throw new TRPCError({ code: "NOT_FOUND", message: "Unable to find room" });
 
-	const data = await redis.hgetall(ROOM_KEY(roomCode));
-	return data as unknown as GameStatus;
+	const status = await redis.hgetall(ROOM_KEY(roomCode));
+	return {
+		startedAt: parseInt(status.startedAt),
+	} as GameStatus;
+};
+
+// Checking if a game is active
+export const getGameState = async (roomCode: string) => {
+	const status = await getGameStatus(roomCode);
+	const settings = await getGameSettings(roomCode);
+
+	if (!status.startedAt) return "default";
+
+	const currentTime = Date.now();
+	const activeTime = status.startedAt + settings.delay;
+	const endTime = activeTime + settings.duration;
+
+	if (currentTime < activeTime) return "counting-down";
+	if (currentTime <= endTime) return "in-progress";
+	return "finished";
 };
 
 export type GuessedCountry = {
