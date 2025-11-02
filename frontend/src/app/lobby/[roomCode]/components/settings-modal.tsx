@@ -43,10 +43,7 @@ const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="max-w-md"
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
