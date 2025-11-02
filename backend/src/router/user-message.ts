@@ -1,7 +1,6 @@
 import z from "zod";
 import { type Country, countries } from "../utils/countries.js";
 import {
-	checkIsGameActive,
 	getGameState,
 	getGuessedCountries,
 	guessCountry,

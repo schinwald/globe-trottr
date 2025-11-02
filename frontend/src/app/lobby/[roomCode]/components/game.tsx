@@ -89,19 +89,8 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
               <LobbyPanel roomCode={roomCode} users={users} />
             </div>
             <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-12 sm:col-span-8 md:col-span-6 h-[590px]">
-              <WorldMap
-                roomCode={roomCode}
-                countries={gameState.countries}
-                timeLeft={gameState.timeLeft}
-                gameOver={gameState.gameOver}
-                countdown={countdown}
-              />
-              <Messager
-                roomCode={roomCode}
-                gameStarted={gameState.gameStarted}
-                gameOver={gameState.gameOver}
-                countries={gameState.countries}
-              />
+              <WorldMap />
+              <Messager />
             </div>
             <div className="col-span-3 hidden md:block h-[590px]">
               <CountryPanel roomCode={roomCode} />

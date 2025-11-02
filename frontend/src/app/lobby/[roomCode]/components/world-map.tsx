@@ -19,6 +19,7 @@ import {
 import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
 import { trpc } from "@/lib/trpc"
 import type { Country } from "@/types"
+import { useRoom } from "../hooks/room"
 import { useSettings } from "../hooks/settings"
 
 const countryPositions: Record<string, [number, number, number]> = {}
@@ -56,25 +57,15 @@ for (const feature of pointsData.features) {
   countryPositions[feature.properties.ADM0_A3_IS] = average
 }
 
-interface WorldMapProps {
-  roomCode: string
-  countries: Country[]
-  timeLeft: number
-  gameOver: boolean
-  countdown: number | null
-}
+type WorldMapProps = {}
 
-const WorldMap: React.FC<WorldMapProps> = ({
-  roomCode,
-  gameOver,
-  countdown,
-}) => {
+const WorldMap: React.FC<WorldMapProps> = () => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const preStartTimerRef = useRef<PreStartTimerRef>(null)
   const timerRef = useRef<TimerRef>(null)
 
+  const { roomCode } = useRoom()
   const [countries, setCountries] = useState<Country[]>([])
-  const [isActiveGame, setIsActiveGame] = useState(false)
   const { delay, duration } = useSettings()
   const [gameState, setGameState] = useState<"default" | "started" | "ended">(
     "default"

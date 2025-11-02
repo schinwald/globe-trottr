@@ -14,15 +14,17 @@ import { Guess } from "@/app/lobby/[roomCode]/components/guess"
 import { Floater } from "@/components/floater"
 import { Button } from "@/components/ui/button"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
+import { useRoom } from "../hooks/room"
+import { useSettings } from "../hooks/settings"
 import { SettingsModal } from "./settings-modal"
 
 interface LobbyProps {
-  roomCode: string
   users: (User & { id: string; role: "host" | "guest" })[]
 }
 
-const LobbyPanel: React.FC<LobbyProps> = ({ roomCode, users }) => {
-  const maxPlayers = 6
+const LobbyPanel: React.FC<LobbyProps> = ({ users }) => {
+  const { roomCode } = useRoom()
+  const { maxPlayers } = useSettings()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
