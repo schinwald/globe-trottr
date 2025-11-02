@@ -5,6 +5,7 @@
 import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
+import Confetti from "react-confetti"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
 import { Button } from "@/components/ui/button"
@@ -166,6 +167,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
           duration={delay}
         />
+        {gameState === "ended" ? <Confetti width={2000} height={500} /> : null}
       </div>
       <div className="absolute left-0 bottom-0 p-6 z-50 text-white">
         <Timer
