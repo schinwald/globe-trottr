@@ -97,12 +97,15 @@ export const Notification: React.FC<PortalProps> = ({
               transition={{
                 duration: 0.1,
                 onComplete: () => {
-                  setTimeout(() => {
-                    setSpawner((spawner) => {
-                      delete spawner[id]
-                      return { ...spawner }
-                    })
-                  }, 1500)
+                  setTimeout(
+                    () => {
+                      setSpawner((spawner) => {
+                        delete spawner[id]
+                        return { ...spawner }
+                      })
+                    },
+                    1500 + data.guess.length * 50
+                  )
                 },
               }}
             >
