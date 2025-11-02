@@ -10,6 +10,7 @@ export const procedure = t.procedure
 	.input(
 		z.object({
 			roomCode: z.string(),
+			delay: z.number(),
 			duration: z.number(),
 		}),
 	)
@@ -19,6 +20,7 @@ export const procedure = t.procedure
 			userId: ctx.info.user.id,
 			settings: {
 				maxPlayers: CONSTANTS.MAX_PLAYERS,
+				delay: input.delay,
 				duration: input.duration,
 			},
 		});

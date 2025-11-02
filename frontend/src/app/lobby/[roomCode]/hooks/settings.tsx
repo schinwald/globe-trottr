@@ -21,20 +21,13 @@ const SettingsContext = createContext<SettingsContext>({
   duration: 0,
 })
 
-type SettingsProps = {
-  maxPlayers: number
-  delay: number
-  defaultDuration: number
-} & PropsWithChildren
+type SettingsProps = {} & PropsWithChildren
 
-export const Provider: React.FC<SettingsProps> = ({
-  maxPlayers,
-  delay,
-  defaultDuration,
-  children,
-}) => {
-  const [duration, setDuration] = useState(defaultDuration)
+export const Provider: React.FC<SettingsProps> = ({ children }) => {
   const { roomCode } = useRoom()
+  const [maxPlayers, setMaxPlayers] = useState(0)
+  const [delay, setDelay] = useState(0)
+  const [duration, setDuration] = useState(0)
 
   trpc.subscriptionGameSettingsChanges.useSubscription(
     {
@@ -42,7 +35,9 @@ export const Provider: React.FC<SettingsProps> = ({
     },
     {
       onData: (data) => {
-        setDuration(data.duration)
+        setMaxPlayers(parseInt(data.maxPlayers))
+        setDelay(parseInt(data.delay))
+        setDuration(parseInt(data.duration))
       },
     }
   )

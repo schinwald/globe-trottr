@@ -24,6 +24,10 @@ const Timer = forwardRef<TimerRef, TimerProps>(
     const [pauseDuration, setPauseDuration] = useState(0)
     const [time, setTime] = useState<number>(duration)
 
+    useEffect(() => {
+      setTime(duration)
+    }, [duration])
+
     useImperativeHandle(ref, () => ({
       start: (time: number) => {
         setStartTime(time)

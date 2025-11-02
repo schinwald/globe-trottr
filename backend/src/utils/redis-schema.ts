@@ -1,6 +1,7 @@
 // Redis key schemas and helper functions
 
 import { TRPCError } from "@trpc/server";
+import type { Callback, Result } from "ioredis";
 import Sqids from "sqids";
 import { CONSTANTS } from "./constants.js";
 import { validateGuess } from "./logic.js";
@@ -17,6 +18,16 @@ type Redis = typeof redis;
 type IteratorOptions = {
 	signal?: AbortSignal;
 };
+
+declare module "ioredis" {
+	interface RedisCommander<Context> {
+		deleteUserAndPromoteOther(
+			key: string,
+			argv: string,
+			callback?: Callback<string>,
+		): Result<string, Context>;
+	}
+}
 
 // Create an async iterator for a Redis subscriber
 export const createSubscriberIterator = async (
@@ -113,6 +124,7 @@ export const createRoom = async () => {
 
 	await redis.hset(GAME_SETTINGS_KEY(roomCode), {
 		maxPlayers: CONSTANTS.MAX_PLAYERS,
+		delay: CONSTANTS.DEFAULT_DELAY,
 		duration: CONSTANTS.DEFAULT_DURATION,
 	} satisfies GameSettings);
 
@@ -182,13 +194,10 @@ end
 return nil
 `;
 
-const deleteUserAndPromoteOther = redis.defineCommand(
-	"deleteUserAndPromoteOther",
-	{
-		numberOfKeys: 1,
-		lua: SCRIPT_LEAVE_ROOM,
-	},
-);
+redis.defineCommand("deleteUserAndPromoteOther", {
+	numberOfKeys: 1,
+	lua: SCRIPT_LEAVE_ROOM,
+});
 
 // Leaving a room
 export const leaveRoom = async ({ roomCode, userId }: LeaveRoomArgs) => {
@@ -221,6 +230,7 @@ export const getRoomUsers = async (roomCode: string) => {
 
 export type GameSettings = {
 	maxPlayers: number;
+	delay: number;
 	duration: number;
 };
 

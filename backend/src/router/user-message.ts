@@ -1,6 +1,8 @@
 import z from "zod";
-import { countries } from "../utils/countries.js";
+import { type Country, countries } from "../utils/countries.js";
 import {
+	getGameSettings,
+	getGameStatus,
 	getGuessedCountries,
 	guessCountry,
 	publishGameCountryStatus,
@@ -16,14 +18,37 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
-		const country = await guessCountry({
-			roomCode: input.roomCode,
-			userId: ctx.info.user.id,
-			guess: input.guess,
-		});
-		ctx.log.info({ input }, "Guessing country");
+		const status = await getGameStatus(input.roomCode);
+		const settings = await getGameSettings(input.roomCode);
 
-		const guessedCountries = await getGuessedCountries(input.roomCode);
+		const isActiveGame = (() => {
+			if (!status.startedAt) return false;
+			const endTime = status.startedAt + status.delay + settings.duration;
+			if (Date.now() > endTime) return false;
+			return true;
+		})();
+
+		let country: Country | null = null;
+		if (isActiveGame) {
+			country = await guessCountry({
+				roomCode: input.roomCode,
+				userId: ctx.info.user.id,
+				guess: input.guess,
+			});
+			ctx.log.info({ input }, "Guessing country");
+
+			const guessedCountries = await getGuessedCountries(input.roomCode);
+
+			await publishGameCountryStatus(input.roomCode, "country-statuses", {
+				countries: countries.map((country) => {
+					return {
+						...country,
+						guessed: guessedCountries[country.iso],
+					};
+				}),
+			});
+			ctx.log.info({ input }, "Publishing country statuses to room");
+		}
 
 		await publishUserMessage(input.roomCode, "message", {
 			userId: ctx.info.user.id,
@@ -31,14 +56,4 @@ export const procedure = t.procedure
 			country,
 		});
 		ctx.log.info({ input }, "Publishing user message to room");
-
-		await publishGameCountryStatus(input.roomCode, "country-statuses", {
-			countries: countries.map((country) => {
-				return {
-					...country,
-					guessed: guessedCountries[country.iso],
-				};
-			}),
-		});
-		ctx.log.info({ input }, "Publishing country statuses to room");
 	});

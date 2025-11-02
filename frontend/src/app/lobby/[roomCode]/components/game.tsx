@@ -59,11 +59,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
 
   return (
     <Room.Provider roomCode={roomCode}>
-      <Settings.Provider
-        maxPlayers={6}
-        delay={1000 * 5}
-        defaultDuration={1000 * 60 * 5}
-      >
+      <Settings.Provider>
         <Guess.Provider>
           <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
             <div className="col-span-3 sm:hidden flex justify-start items-end">
