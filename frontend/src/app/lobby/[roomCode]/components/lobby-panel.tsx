@@ -11,11 +11,11 @@ import { GiPlainCircle as CircleIcon } from "react-icons/gi"
 import { LuCircleDashed as EmptyCircleIcon } from "react-icons/lu"
 import { RiVipCrownFill as CrownIcon } from "react-icons/ri"
 import { Guess } from "@/app/lobby/[roomCode]/components/guess"
-import { Floater } from "@/components/floater"
 import { Button } from "@/components/ui/button"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
 import { useRoom } from "../hooks/room"
 import { useSettings } from "../hooks/settings"
+import { InviteModal } from "./invite-modal"
 import { SettingsModal } from "./settings-modal"
 
 interface LobbyProps {
@@ -25,7 +25,8 @@ interface LobbyProps {
 const LobbyPanel: React.FC<LobbyProps> = ({ users }) => {
   const { roomCode, qrcodeDataURL } = useRoom()
   const { maxPlayers } = useSettings()
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
 
   return (
     <div className="bg-white rounded-xl shadow-xl border border-gray-300 h-full">
@@ -73,47 +74,39 @@ const LobbyPanel: React.FC<LobbyProps> = ({ users }) => {
               )
             })}
           </div>
-          <div className="flex flex-col gap-2">
-            <Floater.Root>
-              <Floater.Trigger className="w-full" asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `localhost:3000/lobby/${roomCode}`
-                    )
-                  }}
-                >
-                  <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
-                    <UserPlusIcon className="-ml-2 size-5" />
-                    Invite Friends
-                  </div>
-                </Button>
-              </Floater.Trigger>
-              <Floater.Portal>
-                <p className="text-sm whitespace-nowrap text-primary">
-                  Copied!
-                </p>
-              </Floater.Portal>
-            </Floater.Root>
-            <img src={qrcodeDataURL} alt="QR Code" className="w-full" />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
-                <SettingsIcon className="-ml-2 size-5" />
-                Settings
-              </div>
-            </Button>
-          </div>
+           <div className="flex flex-col gap-2">
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={() => setIsInviteModalOpen(true)}
+             >
+               <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
+                 <UserPlusIcon className="-ml-2 size-5" />
+                 Invite Friends
+               </div>
+             </Button>
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={() => setIsSettingsModalOpen(true)}
+             >
+               <div className="flex gap-1 items-center hover:scale-[102%] transition-transform">
+                 <SettingsIcon className="-ml-2 size-5" />
+                 Settings
+               </div>
+             </Button>
+           </div>
         </div>
       </div>
+      <InviteModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        roomCode={roomCode}
+        qrDataUrl={qrcodeDataURL}
+      />
       <SettingsModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
     </div>
   )
