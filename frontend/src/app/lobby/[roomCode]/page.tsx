@@ -17,12 +17,12 @@ async function App({ params }: Params) {
     }
   }
 
-  await getRoom()
+  const { roomCode, qrcodeDataURL } = await getRoom()
 
   return (
     <div className="min-h-screen py-8 px-2 sm:px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
-        <Game roomCode={params.roomCode} />
+        <Game roomCode={roomCode} qrcodeDataURL={qrcodeDataURL} />
       </div>
     </div>
   )

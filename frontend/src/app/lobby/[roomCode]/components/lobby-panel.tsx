@@ -23,7 +23,7 @@ interface LobbyProps {
 }
 
 const LobbyPanel: React.FC<LobbyProps> = ({ users }) => {
-  const { roomCode } = useRoom()
+  const { roomCode, qrcodeDataURL } = useRoom()
   const { maxPlayers } = useSettings()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -97,6 +97,7 @@ const LobbyPanel: React.FC<LobbyProps> = ({ users }) => {
                 </p>
               </Floater.Portal>
             </Floater.Root>
+            <img src={qrcodeDataURL} alt="QR Code" className="w-full" />
             <Button
               variant="outline"
               size="sm"

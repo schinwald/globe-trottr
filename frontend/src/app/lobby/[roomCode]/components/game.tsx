@@ -21,9 +21,10 @@ const logoUrl = "/logo.svg"
 
 interface GameProps {
   roomCode: string
+  qrcodeDataURL: string
 }
 
-const Game: React.FC<GameProps> = ({ roomCode }) => {
+const Game: React.FC<GameProps> = ({ roomCode, qrcodeDataURL }) => {
   const { gameState, countdown } = useGameState()
 
   const [users, setUsers] = useState<
@@ -58,7 +59,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
   )
 
   return (
-    <Room.Provider roomCode={roomCode}>
+    <Room.Provider roomCode={roomCode} qrcodeDataURL={qrcodeDataURL}>
       <Settings.Provider>
         <Guess.Provider>
           <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
@@ -71,7 +72,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
               </Button>
             </div>
             <header className="col-span-6 sm:col-span-full flex flex-col items-center justify-end">
-              <div className="size-[199px] -mt-[25px] -mb-[90px] -mx-[100px]">
+              <div className="size-[125px] -mt-[25px] -mb-[55px] -mx-[100px]">
                 <Link href="/">
                   <img src={logoUrl} alt="Logo" className="w-full" />
                 </Link>
@@ -86,7 +87,7 @@ const Game: React.FC<GameProps> = ({ roomCode }) => {
               </Button>
             </div>
             <div className="hidden sm:block sm:col-span-4 md:col-span-3 h-[590px]">
-              <LobbyPanel roomCode={roomCode} users={users} />
+              <LobbyPanel users={users} />
             </div>
             <div className="bg-white rounded-xl shadow-xl border border-gray-300 overflow-hidden col-span-12 sm:col-span-8 md:col-span-6 h-[590px]">
               <WorldMap />

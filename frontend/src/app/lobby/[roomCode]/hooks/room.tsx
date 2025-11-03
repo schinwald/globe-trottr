@@ -4,21 +4,29 @@ import { createContext, type PropsWithChildren, useContext } from "react"
 
 type RoomContext = {
   roomCode: string
+  qrcodeDataURL: string
 }
 
 const RoomContext = createContext<RoomContext>({
   roomCode: "",
+  qrcodeDataURL: "",
 })
 
 type SettingsProps = {
   roomCode: string
+  qrcodeDataURL: string
 } & PropsWithChildren
 
-export const Provider: React.FC<SettingsProps> = ({ roomCode, children }) => {
+export const Provider: React.FC<SettingsProps> = ({
+  roomCode,
+  qrcodeDataURL,
+  children,
+}) => {
   return (
     <RoomContext.Provider
       value={{
         roomCode,
+        qrcodeDataURL,
       }}
     >
       {children}

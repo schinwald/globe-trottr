@@ -2,6 +2,7 @@
 
 import { TRPCError } from "@trpc/server";
 import type { Callback, Result } from "ioredis";
+import qrcodeGenerator from "qrcode";
 import Sqids from "sqids";
 import { CONSTANTS } from "./constants.js";
 import { validateGuess } from "./logic.js";
@@ -112,15 +113,25 @@ export const getUser = async (id: string) => {
 
 type Room = {
 	createdAt: number;
+	roomCode: string;
+	qrcodeDataURL: string;
 };
 
 // Creating a room
 export const createRoom = async () => {
 	const roomId = await redis.incr(TOTAL_ROOMS_KEY);
 	const roomCode = sqids.encode([roomId]);
-	await redis.hset(ROOM_KEY(roomCode), {
+	const qrcodeDataURL = await qrcodeGenerator.toDataURL(
+		`http://${process.env.ORIGIN}/lobby/${roomCode}`,
+	);
+
+	const room: Room = {
 		createdAt: Date.now(),
-	} satisfies Room);
+		roomCode,
+		qrcodeDataURL,
+	};
+
+	await redis.hset(ROOM_KEY(roomCode), room);
 
 	await redis.hset(GAME_SETTINGS_KEY(roomCode), {
 		maxPlayers: CONSTANTS.MAX_PLAYERS,
@@ -128,7 +139,7 @@ export const createRoom = async () => {
 		duration: CONSTANTS.DEFAULT_DURATION,
 	} satisfies GameSettings);
 
-	return roomCode;
+	return room;
 };
 
 // Gettings a room
