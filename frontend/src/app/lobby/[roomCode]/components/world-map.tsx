@@ -13,6 +13,7 @@ import pointsData from "@/data/world.json"
 
 const globeImageUrl = "/world.png"
 
+import { AnimatePresence, motion } from "framer-motion"
 import {
   PreStartTimer,
   type PreStartTimerRef,
@@ -161,14 +162,25 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           </Button>
         </div>
       ) : null}
-      <div className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none">
+      <div className="col-span-full row-span-full flex justify-center items-center z-30 pointer-events-none">
         <PreStartTimer
           ref={preStartTimerRef}
           className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
           duration={delay}
         />
-        {gameState === "ended" ? <Confetti width={2000} height={500} /> : null}
       </div>
+      <AnimatePresence>
+        {gameState === "ended" ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none"
+          >
+            <Confetti width={2000} height={500} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
       <div className="absolute left-0 bottom-0 p-6 z-50 text-white">
         <Timer
           ref={timerRef}
