@@ -37,6 +37,11 @@ const PreStartTimer = forwardRef<PreStartTimerRef, PreStartTimerProps>(
 
           const currentTime = Date.now()
           const elapsedTime = currentTime - startTime
+
+          if (elapsedTime < 0) {
+            return null
+          }
+
           const timeLeft = duration - elapsedTime
 
           if (timeLeft < 0) {

@@ -14,7 +14,10 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
-		const startedAt = await startGame({ roomCode: input.roomCode });
+		const startedAt = await startGame({
+			roomCode: input.roomCode,
+			latency: 2000,
+		});
 		ctx.log.info({ roomCode: input.roomCode }, "Game started");
 
 		await publishGameStatus(input.roomCode, "started", {

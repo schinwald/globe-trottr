@@ -285,11 +285,12 @@ export const getGameSettings = async (roomCode: string) => {
 
 type StartGameArgs = {
 	roomCode: string;
+	latency: number;
 };
 
 // Starting a game
 export const startGame = async (options: StartGameArgs) => {
-	const startedAt = Date.now();
+	const startedAt = Date.now() + options.latency;
 
 	await redis.hset(ROOM_KEY(options.roomCode), {
 		startedAt,
