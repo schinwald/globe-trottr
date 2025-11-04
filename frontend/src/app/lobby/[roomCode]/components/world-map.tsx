@@ -1,28 +1,25 @@
 "use client"
 
-"use client"
-
+import { AnimatePresence, motion } from "framer-motion"
 import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
 import Confetti from "react-confetti"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
-import { Button } from "@/components/ui/button"
-import pointsData from "@/data/world.json"
-
-const globeImageUrl = "/world.png"
-
-import { AnimatePresence, motion } from "framer-motion"
 import {
   PreStartTimer,
   type PreStartTimerRef,
 } from "@/app/lobby/[roomCode]/components/pre-start-timer"
 import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
+import { Button } from "@/components/ui/button"
+import pointsData from "@/data/world.json"
 import { trpc } from "@/lib/trpc"
 import type { Country } from "@/types"
 import { useRoom } from "../hooks/room"
 import { useSettings } from "../hooks/settings"
+
+const globeImageUrl = "/world.png"
 
 const countryPositions: Record<string, [number, number, number]> = {}
 
@@ -69,9 +66,9 @@ const WorldMap: React.FC<WorldMapProps> = () => {
   const { roomCode } = useRoom()
   const [countries, setCountries] = useState<Country[]>([])
   const { delay, duration } = useSettings()
-  const [gameState, setGameState] = useState<"default" | "started" | "ended">(
-    "default"
-  )
+  const [gameState, setGameState] = useState<
+    "default" | "counting-down" | "in-progress" | "time-up" | "won"
+  >("default")
 
   const gameStartMutation = trpc.mutationGameStart.useMutation()
 
@@ -84,7 +81,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
         if (!data.startedAt) return
         preStartTimerRef.current?.start(data.startedAt)
         timerRef.current?.start(data.startedAt)
-        setGameState("started")
+        setGameState("counting-down")
       },
     }
   )
@@ -110,6 +107,14 @@ const WorldMap: React.FC<WorldMapProps> = () => {
     {
       onData: (data) => {
         setCountries(data.countries)
+        const guessedCountries = data.countries.filter(
+          (country) => country.guessed
+        )
+
+        if (guessedCountries.length === data.countries.length) {
+          setGameState("won")
+          timerRef.current?.stop()
+        }
       },
     }
   )
@@ -147,37 +152,75 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           </Button>
         </div>
       ) : null}
-      {gameState === "ended" ? (
+      {gameState === "time-up" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <Button
-            size="lg"
-            onClick={() => {
-              gameStartMutation.mutate({
-                roomCode,
-              })
-            }}
-          >
-            <RefreshIcon className="size-4 mr-1" />
-            <span className="text-lg font-bold">Play Again?</span>
-          </Button>
+          <div className="flex flex-col items-center gap-1">
+            <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
+              Times Up!
+            </h3>
+            <div>
+              <Button
+                size="lg"
+                onClick={() => {
+                  gameStartMutation.mutate({
+                    roomCode,
+                  })
+                }}
+              >
+                <RefreshIcon className="size-4 mr-1" />
+                <span className="text-lg font-bold">Play Again?</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {gameState === "won" ? (
+        <div className="col-span-full row-span-full flex justify-center items-center z-30">
+          <div className="flex flex-col items-center gap-1">
+            <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
+              Congratulations!
+            </h3>
+            <div>
+              <Button
+                size="lg"
+                onClick={() => {
+                  gameStartMutation.mutate({
+                    roomCode,
+                  })
+                }}
+              >
+                <RefreshIcon className="size-4 mr-1" />
+                <span className="text-lg font-bold">Play Again?</span>
+              </Button>
+            </div>
+          </div>
         </div>
       ) : null}
       <div className="col-span-full row-span-full flex justify-center items-center z-30 pointer-events-none">
         <PreStartTimer
           ref={preStartTimerRef}
-          className="text-6xl font-bold text-orange-300 text-shadow-lg/20"
+          className="text-6xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:1px_black]"
           duration={delay}
+          onComplete={() => {
+            setGameState("in-progress")
+          }}
         />
       </div>
       <AnimatePresence>
-        {gameState === "ended" ? (
+        {gameState === "won" ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 2 }}
             className="col-span-full row-span-full flex justify-center items-center z-20 pointer-events-none"
           >
-            <Confetti width={2000} height={500} />
+            <Confetti
+              width={2000}
+              height={500}
+              initialVelocityY={-10}
+              numberOfPieces={300}
+            />
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -187,7 +230,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           duration={duration}
           delay={delay}
           onComplete={() => {
-            setGameState("ended")
+            setGameState("time-up")
           }}
         />
       </div>

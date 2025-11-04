@@ -8,6 +8,7 @@ export type TimerRef = {
   start: (time: number) => void
   pause: () => number
   resume: (pauseDuration: number) => void
+  stop: () => void
 }
 
 type TimerProps = {
@@ -40,6 +41,9 @@ const Timer = forwardRef<TimerRef, TimerProps>(
       resume: (pauseDuration: number) => {
         setIsPaused(false)
         setPauseDuration(pauseDuration)
+      },
+      stop: () => {
+        setStartTime(null)
       },
     }))
 

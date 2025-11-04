@@ -5,6 +5,7 @@ import type { Callback, Result } from "ioredis";
 import qrcodeGenerator from "qrcode";
 import Sqids from "sqids";
 import { CONSTANTS } from "./constants.js";
+import { type Country, countries } from "./countries.js";
 import { validateGuess } from "./logic.js";
 import redis from "./redis.js";
 
@@ -317,12 +318,27 @@ export const getGameStatus = async (roomCode: string) => {
 	} as GameStatus;
 };
 
+// Checking if a game is won
+export const checkIsGameWon = async (
+	guessedCountries: GuessedCountry[],
+	countries: Country[],
+) => {
+	if (guessedCountries.length === countries.length) return true;
+	return false;
+};
+
 // Checking if a game is active
 export const getGameState = async (roomCode: string) => {
 	const status = await getGameStatus(roomCode);
 	const settings = await getGameSettings(roomCode);
+	const guessedCountries = await getGuessedCountries(roomCode);
+	const isGameWon = await checkIsGameWon(
+		Object.values(guessedCountries),
+		countries,
+	);
 
 	if (!status.startedAt) return "default";
+	if (isGameWon) return "finished";
 
 	const currentTime = Date.now();
 	const activeTime = status.startedAt + settings.delay;

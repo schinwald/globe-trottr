@@ -6,7 +6,6 @@ import { useState } from "react"
 import { LobbyPanel } from "@/app/lobby/[roomCode]/components/lobby-panel"
 import ErrorModal from "@/components/ErrorModal"
 import { Button } from "@/components/ui/button"
-import { useGameState } from "@/hooks/useGameState"
 import { trpc } from "@/lib/trpc"
 import type { ErrorType } from "@/utils/errors"
 import type { User } from "../../../../../../backend/src/utils/redis-schema"
@@ -25,8 +24,6 @@ interface GameProps {
 }
 
 const Game: React.FC<GameProps> = ({ roomCode, qrcodeDataURL }) => {
-  const { gameState, countdown } = useGameState()
-
   const [users, setUsers] = useState<
     (User & { id: string; role: "host" | "guest" })[]
   >([])

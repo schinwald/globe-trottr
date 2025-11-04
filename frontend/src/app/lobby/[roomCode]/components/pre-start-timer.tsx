@@ -27,6 +27,11 @@ const PreStartTimer = forwardRef<PreStartTimerRef, PreStartTimerProps>(
     useEffect(() => {
       if (startTime === null) return
 
+      const currentTime = Date.now()
+      const elapsedTime = currentTime - startTime
+      const timeLeft = duration - elapsedTime
+      if (timeLeft < 0) return
+
       let interval: number | undefined
       interval = window.setInterval(() => {
         setTime(() => {
