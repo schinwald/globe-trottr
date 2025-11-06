@@ -16,7 +16,8 @@ import { Guess } from "./guess"
 import { Messager } from "./messager"
 import { WorldMap } from "./world-map"
 
-const logoUrl = "/logo.svg"
+const smallLogoURl = "/small-logo.svg"
+const bigLogoURL = "/big-logo.svg"
 
 interface GameProps {
   roomCode: string
@@ -68,12 +69,19 @@ const Game: React.FC<GameProps> = ({ roomCode, qrcodeDataURL }) => {
                 </div>
               </Button>
             </div>
-            <header className="col-span-6 sm:col-span-full flex flex-col items-center justify-end">
-              <div className="size-[125px] -mt-[25px] -mb-[55px] -mx-[100px]">
-                <Link href="/">
-                  <img src={logoUrl} alt="Logo" className="w-full" />
-                </Link>
-              </div>
+            <header className="col-span-6 sm:col-span-full flex justify-center sm:justify-start">
+              <Link href="/">
+                <img
+                  src={smallLogoURl}
+                  alt="Logo"
+                  className="hidden sm:block h-20"
+                />
+                <img
+                  src={bigLogoURL}
+                  alt="Logo"
+                  className="block sm:hidden h-20"
+                />
+              </Link>
             </header>
             <div className="col-span-3 sm:hidden flex justify-end items-end">
               <Button variant="ghost" size="xs">

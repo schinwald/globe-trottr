@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Confetti from "react-confetti"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
@@ -18,6 +18,12 @@ import { trpc } from "@/lib/trpc"
 import type { Country } from "@/types"
 import { useRoom } from "../hooks/room"
 import { useSettings } from "../hooks/settings"
+
+const mapColor = {
+  fill: "#6ABD45",
+  border: "#0c8a60",
+  depth: "#0ea271",
+}
 
 const globeImageUrl = "/world.png"
 
@@ -118,6 +124,19 @@ const WorldMap: React.FC<WorldMapProps> = () => {
       },
     }
   )
+
+  useEffect(() => {
+    if (!globeRef.current) return
+
+    const lights = globeRef.current.lights()
+    const [ambientLight, directionalLight] = lights
+
+    ambientLight.color.r = 1
+    ambientLight.color.g = 1
+    ambientLight.color.b = 1
+
+    directionalLight.visible = false
+  }, [])
 
   const guessedCountries = countries.filter((country) => country.guessed)
   const guessed = countries
@@ -242,7 +261,8 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           globeImageUrl={globeImageUrl}
           polygonsData={pointsData.features}
           polygonSideColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#0ea271"
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+              return mapColor.depth
 
             if (
               !countries.find(
@@ -255,7 +275,8 @@ const WorldMap: React.FC<WorldMapProps> = () => {
             return "#eee"
           }}
           polygonStrokeColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#0c8a60"
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+              return mapColor.border
 
             if (
               !countries.find(
@@ -268,7 +289,8 @@ const WorldMap: React.FC<WorldMapProps> = () => {
             return "#aaa"
           }}
           polygonCapColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)]) return "#10b981"
+            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+              return mapColor.fill
 
             if (
               !countries.find(

@@ -1,4 +1,4 @@
-const logoUrl = "/logo.svg"
+const bigLogoURL = "/big-logo.svg"
 
 import { server } from "@/trpc"
 import type { User } from "../../../../backend/src/utils/redis-schema"
@@ -11,19 +11,19 @@ async function App() {
 
   return (
     <div className="w-full h-screen flex justify-center items-center px-4">
-      <div className="-mt-20 sm:m-0 max-w-md w-full bg-white rounded-xl border border-gray-300 shadow-xl p-8 text-center flex flex-col gap-3 overflow-hidden">
-        <div className="size-[260px] sm:size-[320px] md:size-[400px] mx-auto -my-[60px] sm:-my-[80px] md:-my-[100px] pointer-events-none">
-          <img
-            src={logoUrl}
-            alt="Globe Trotters Logo"
-            className="w-full h-full object-contain"
-          />
+      <div className="-mt-20 sm:m-0 max-w-md w-full bg-white rounded-xl border border-gray-300 shadow-xl px-8 py-10 text-center flex flex-col gap-6">
+        <img
+          src={bigLogoURL}
+          alt="Globe Trotters Logo"
+          className="w-full h-[200px] -mt-[150px] object-contain"
+        />
+        <div className="flex flex-col gap-3">
+          <p className="text-gray-600">
+            Test your geography knowledge! Guess as many countries as you can
+            before the timer runs out.
+          </p>
+          <CreateRoom user={user} placeholderUsername={placeholderUsername} />
         </div>
-        <p className="text-gray-600">
-          Test your geography knowledge! Guess as many countries as you can
-          before the timer runs out.
-        </p>
-        <CreateRoom user={user} placeholderUsername={placeholderUsername} />
       </div>
     </div>
   )

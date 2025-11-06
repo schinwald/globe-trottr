@@ -5,8 +5,11 @@ import "./globals.css"
 const backgroundURL = "/topography.svg"
 
 export const metadata: Metadata = {
-  title: "World-Wide Wonders",
+  title: "Globe Trottr",
   description: "Guess as many countries as you can before the timer runs out!",
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+  },
 }
 
 export default function RootLayout({
