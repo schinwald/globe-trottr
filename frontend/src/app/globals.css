@@ -45,11 +45,11 @@
 
 	--border: 210 40% 91%;
 	--input: 210 40% 91%;
-	--ring: 256 63% 42%;
+	--ring: #2563eb;
 
 	--color-border: hsl(var(--border));
 	--color-input: hsl(var(--input));
-	--color-ring: hsl(var(--ring));
+	--color-ring: var(--ring);
 
 	--color-background: #f0f9ff;
 	--color-foreground: #1e293b;
