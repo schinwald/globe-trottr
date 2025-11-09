@@ -37,17 +37,19 @@ export const procedure = t.procedure
 				};
 			}
 		} finally {
-			const left = await leaveRoom({
-				roomCode: input.roomCode,
-				userId: ctx.info.user.id,
-			});
-			if (!left) return;
+			await (async () => {
+				const left = await leaveRoom({
+					roomCode: input.roomCode,
+					userId: ctx.info.user.id,
+				});
+				if (!left) return;
 
-			const users = await getRoomUsers(input.roomCode);
+				const users = await getRoomUsers(input.roomCode);
 
-			await publishRoomConnection(input.roomCode, "leave", {
-				users,
-			});
+				await publishRoomConnection(input.roomCode, "leave", {
+					users,
+				});
+			})();
 
 			await subscriber.unsubscribe();
 			subscriber.disconnect();
