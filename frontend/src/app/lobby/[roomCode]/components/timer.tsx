@@ -25,10 +25,6 @@ const Timer = forwardRef<TimerRef, TimerProps>(
     const [pauseDuration, setPauseDuration] = useState(0)
     const [time, setTime] = useState<number>(duration)
 
-    useEffect(() => {
-      setTime(duration)
-    }, [duration])
-
     useImperativeHandle(ref, () => ({
       start: (time: number) => {
         setStartTime(time)
@@ -51,6 +47,26 @@ const Timer = forwardRef<TimerRef, TimerProps>(
       if (startTime === null) return
       if (isPaused) return
 
+      // Run the timer immediately to figure out the timer value once startTime is set
+      setTime(() => {
+        if (startTime === null) {
+          return duration
+        }
+
+        const currentTime = Date.now()
+        const elapsedTime = currentTime - startTime
+        const activeDuration = Math.max(0, elapsedTime - pauseDuration - delay)
+        const timeLeft = duration - activeDuration
+
+        if (timeLeft <= 0) {
+          onComplete?.()
+          return 0
+        }
+
+        return timeLeft
+      })
+
+      // Create an interval to update the timer value every second
       let interval: number | undefined
       interval = window.setInterval(() => {
         setTime(() => {
