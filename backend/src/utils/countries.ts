@@ -45,7 +45,7 @@ export const countries: Country[] = [
 		id: "ATG",
 		name: "Antigua and Barbuda",
 		iso: "ATG",
-		matches: ["Antigua and Barbuda", "AG"],
+		matches: ["Antigua and Barbuda", "Antigua", "Barbuda", "AG"],
 	},
 	{
 		id: "ARG",
@@ -276,6 +276,7 @@ export const countries: Country[] = [
 		iso: "CPV",
 		matches: [
 			"Cape Verde",
+			"Cabo Verde",
 			"CV",
 			"Republic of Cabo Verde",
 			"República de Cabo Verde",
@@ -455,7 +456,7 @@ export const countries: Country[] = [
 		id: "DOM",
 		name: "Dominican Republic",
 		iso: "DOM",
-		matches: ["Dominican Republic", "DO"],
+		matches: ["Dominican Republic", "Dominican", "DO"],
 	},
 	{
 		id: "ECU",
