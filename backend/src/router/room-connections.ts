@@ -10,10 +10,12 @@ import {
 	type User,
 } from "../utils/redis-schema.js";
 import { t } from "../utils/trpc.js";
+import { requireUser } from "../utils/user.js";
 
 export const procedure = t.procedure
 	.input(z.object({ roomCode: z.string() }))
 	.subscription(async function* ({ input, signal, ctx }) {
+		const user = requireUser(ctx);
 		const subscriber = redis.duplicate();
 		subscriber.subscribe(ROOM_CONNECTION_CHANNEL(input.roomCode));
 		const iterator = await createSubscriberIterator(subscriber, { signal });
@@ -21,7 +23,7 @@ export const procedure = t.procedure
 		try {
 			await joinRoom({
 				roomCode: input.roomCode,
-				userId: ctx.info.user.id,
+				userId: user.id,
 			});
 
 			const users = await getRoomUsers(input.roomCode);
@@ -40,7 +42,7 @@ export const procedure = t.procedure
 			await (async () => {
 				const left = await leaveRoom({
 					roomCode: input.roomCode,
-					userId: ctx.info.user.id,
+					userId: user.id,
 				});
 				if (!left) return;
 

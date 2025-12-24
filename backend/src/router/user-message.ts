@@ -8,6 +8,7 @@ import {
 	publishUserMessage,
 } from "../utils/redis-schema.js";
 import { t } from "../utils/trpc.js";
+import { requireUser } from "../utils/user.js";
 
 export const procedure = t.procedure
 	.input(
@@ -17,13 +18,14 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
+		const user = requireUser(ctx);
 		const gameState = await getGameState(input.roomCode);
 
 		let country: Country | null = null;
 		if (["in-progress"].includes(gameState)) {
 			country = await guessCountry({
 				roomCode: input.roomCode,
-				userId: ctx.info.user.id,
+				userId: user.id,
 				guess: input.guess,
 			});
 			ctx.log.info({ input }, "Guessing country");
@@ -42,7 +44,7 @@ export const procedure = t.procedure
 		}
 
 		await publishUserMessage(input.roomCode, "message", {
-			userId: ctx.info.user.id,
+			userId: user.id,
 			guess: input.guess,
 			country,
 		});

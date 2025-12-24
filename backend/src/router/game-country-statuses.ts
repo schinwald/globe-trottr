@@ -12,7 +12,7 @@ export const procedure = t.procedure
 	.input(z.object({ roomCode: z.string() }))
 	.subscription(async function* ({ input, signal }) {
 		const subscriber = redis.duplicate();
-		await subscriber.subscribe(ROOM_COUNTRY_STATUSES_CHANNEL(input.roomCode));
+		subscriber.subscribe(ROOM_COUNTRY_STATUSES_CHANNEL(input.roomCode));
 		const iterator = createSubscriberIterator(subscriber, { signal });
 
 		try {
@@ -27,6 +27,7 @@ export const procedure = t.procedure
 			};
 
 			for await (const data of await iterator) {
+				console.log(data.message);
 				yield JSON.parse(data.message) as {
 					countries: (Country & { guessed: boolean })[];
 				};

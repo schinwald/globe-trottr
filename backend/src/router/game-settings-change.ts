@@ -7,6 +7,7 @@ import {
 	publishGameSettingsChange,
 } from "../utils/redis-schema.js";
 import { t } from "../utils/trpc.js";
+import { requireUser } from "../utils/user.js";
 
 export const procedure = t.procedure
 	.input(
@@ -17,6 +18,7 @@ export const procedure = t.procedure
 		}),
 	)
 	.mutation(async ({ input, ctx }) => {
+		const user = requireUser(ctx);
 		const gameState = await getGameState(input.roomCode);
 		if (["counting-down", "in-progress"].includes(gameState)) {
 			throw new TRPCError({
@@ -27,7 +29,7 @@ export const procedure = t.procedure
 
 		const settings = await changeGameSettings({
 			roomCode: input.roomCode,
-			userId: ctx.info.user.id,
+			userId: user.id,
 			settings: {
 				maxPlayers: CONSTANTS.MAX_PLAYERS,
 				delay: input.delay,
