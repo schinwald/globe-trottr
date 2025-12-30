@@ -7,6 +7,7 @@ import {
   splitLink,
   wsLink,
 } from "@trpc/client"
+import superjson from "superjson"
 import type { AppRouter } from "../../backend/src/router/index.js"
 
 const wsClient = createWSClient({
@@ -19,12 +20,14 @@ export const client = createTRPCClient<AppRouter>({
   links: [
     splitLink({
       condition: (op) => op.type === "subscription",
-      true: wsLink({ client: wsClient }),
-      false: httpBatchLink({ url: "/api" }),
+      true: wsLink({ client: wsClient, transformer: superjson }),
+      false: httpBatchLink({ url: "/api", transformer: superjson }),
     }),
   ],
 })
 
 export const server = createTRPCProxyClient<AppRouter>({
-  links: [httpBatchLink({ url: `http://localhost:5000/api` })],
+  links: [
+    httpBatchLink({ url: `http://localhost:5000/api`, transformer: superjson }),
+  ],
 })

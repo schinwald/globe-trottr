@@ -1,23 +1,19 @@
 "use client"
 
+import type { Country } from "@globe-trottr/shared/utils/countries.js"
 import { AnimatePresence, motion } from "framer-motion"
 import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import Confetti from "react-confetti"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
-import {
-  PreStartTimer,
-  type PreStartTimerRef,
-} from "@/app/lobby/[roomCode]/components/pre-start-timer"
-import { Timer, type TimerRef } from "@/app/lobby/[roomCode]/components/timer"
+import { useShallow } from "zustand/shallow"
 import { Button } from "@/components/ui/button"
 import pointsData from "@/data/world.json"
-import { trpc } from "@/lib/trpc"
-import type { Country } from "@/types"
-import { useRoom } from "../hooks/room"
-import { useSettings } from "../hooks/settings"
+import { useGameStore } from "../hooks/room"
+import { PostStartCountdown } from "./poststart-countdown"
+import { PreStartCountdown } from "./prestart-countdown"
 
 const mapColor = {
   fill: "#6ABD45",
@@ -62,68 +58,26 @@ for (const feature of pointsData.features) {
   countryPositions[feature.properties.ADM0_A3_IS] = average
 }
 
-type WorldMapProps = {}
+type WorldMapProps = Record<string, never>
 
 const WorldMap: React.FC<WorldMapProps> = () => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
-  const preStartTimerRef = useRef<PreStartTimerRef>(null)
-  const timerRef = useRef<TimerRef>(null)
-
-  const { roomCode } = useRoom()
-  const [countries, setCountries] = useState<Country[]>([])
-  const { delay, duration } = useSettings()
-  const [gameState, setGameState] = useState<
-    "default" | "counting-down" | "in-progress" | "time-up" | "won"
-  >("default")
-
-  const gameStartMutation = trpc.mutationGameStart.useMutation()
-
-  trpc.subscriptionGameStatuses.useSubscription(
-    {
-      roomCode,
-    },
-    {
-      onData: (data) => {
-        if (!data.startedAt) return
-        preStartTimerRef.current?.start(data.startedAt)
-        timerRef.current?.start(data.startedAt)
-        setGameState("counting-down")
-      },
-    }
+  const { state, countriesFound, countriesTotal, startGame } = useGameStore(
+    useShallow((store) => ({
+      state: store.state,
+      countriesFound: store.countriesFound,
+      countriesTotal: store.countriesTotal,
+      startGame: store.startGame,
+    }))
   )
 
-  trpc.subscriptionUserMessages.useSubscription(
-    {
-      roomCode,
-    },
-    {
-      onData: (data) => {
-        if (!globeRef.current) return
-        if (!data.country) return
-        const [lng, lat] = countryPositions[data.country.iso]
-        globeRef.current.pointOfView({ lat, lng }, 1000)
-      },
-    }
-  )
-
-  trpc.subscriptionGameCountryStatuses.useSubscription(
-    {
-      roomCode,
-    },
-    {
-      onData: (data) => {
-        setCountries(data.countries)
-        const guessedCountries = data.countries.filter(
-          (country) => country.guessed
-        )
-
-        if (guessedCountries.length === data.countries.length) {
-          setGameState("won")
-          timerRef.current?.stop()
-        }
-      },
-    }
-  )
+  useEffect(() => {
+    if (!globeRef.current) return
+    const country = countriesFound[0]
+    if (!country) return
+    const [lng, lat] = countryPositions[country.iso]
+    globeRef.current.pointOfView({ lat, lng }, 1000)
+  }, [countriesFound])
 
   useEffect(() => {
     if (!globeRef.current) return
@@ -138,13 +92,13 @@ const WorldMap: React.FC<WorldMapProps> = () => {
     directionalLight.visible = false
   }, [])
 
-  const guessedCountries = countries.filter((country) => country.guessed)
-  const guessed = countries
-    .filter((country) => country.guessed)
-    .reduce((accumulator: Record<string, Country>, current) => {
-      if (accumulator) accumulator[current.iso] = current
+  const countriesFoundByISO = countriesFound.reduce(
+    (accumulator: Record<string, Country>, current) => {
+      if (accumulator) accumulator[current.iso] = current as Country
       return accumulator
-    }, {})
+    },
+    {}
+  )
 
   const normalizedCountryCode = (countryCode: string) => {
     if (countryCode === "GRL") return "DNK" // Greenland -> Denmark
@@ -156,14 +110,12 @@ const WorldMap: React.FC<WorldMapProps> = () => {
 
   return (
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
-      {gameState === "default" ? (
+      {state === "default" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <Button
             size="lg"
             onClick={() => {
-              gameStartMutation.mutate({
-                roomCode,
-              })
+              startGame()
             }}
           >
             <PlayIcon className="size-4 mr-1" />
@@ -171,7 +123,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           </Button>
         </div>
       ) : null}
-      {gameState === "time-up" ? (
+      {state === "timed-out" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <div className="flex flex-col items-center gap-1">
             <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
@@ -181,9 +133,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
               <Button
                 size="lg"
                 onClick={() => {
-                  gameStartMutation.mutate({
-                    roomCode,
-                  })
+                  startGame()
                 }}
               >
                 <RefreshIcon className="size-4 mr-1" />
@@ -193,7 +143,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           </div>
         </div>
       ) : null}
-      {gameState === "won" ? (
+      {state === "won" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
           <div className="flex flex-col items-center gap-1">
             <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
@@ -203,9 +153,7 @@ const WorldMap: React.FC<WorldMapProps> = () => {
               <Button
                 size="lg"
                 onClick={() => {
-                  gameStartMutation.mutate({
-                    roomCode,
-                  })
+                  startGame()
                 }}
               >
                 <RefreshIcon className="size-4 mr-1" />
@@ -216,17 +164,10 @@ const WorldMap: React.FC<WorldMapProps> = () => {
         </div>
       ) : null}
       <div className="col-span-full row-span-full flex justify-center items-center z-30 pointer-events-none">
-        <PreStartTimer
-          ref={preStartTimerRef}
-          className="text-6xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:1px_black]"
-          duration={delay}
-          onComplete={() => {
-            setGameState("in-progress")
-          }}
-        />
+        <PreStartCountdown className="text-6xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:1px_black]" />
       </div>
       <AnimatePresence>
-        {gameState === "won" ? (
+        {state === "won" ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -243,15 +184,8 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           </motion.div>
         ) : null}
       </AnimatePresence>
-      <div className="absolute left-0 bottom-0 p-6 z-50 text-white">
-        <Timer
-          ref={timerRef}
-          duration={duration}
-          delay={delay}
-          onComplete={() => {
-            setGameState("time-up")
-          }}
-        />
+      <div className="absolute right-0 top-0 p-6 z-50 text-white">
+        <PostStartCountdown />
       </div>
       <div className="col-span-full row-span-full">
         <Globe
@@ -261,11 +195,11 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           globeImageUrl={globeImageUrl}
           polygonsData={pointsData.features}
           polygonSideColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+            if (countriesFoundByISO[normalizedCountryCode(d.ADM0_A3_IS)])
               return mapColor.depth
 
             if (
-              !countries.find(
+              !countriesTotal.find(
                 (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
               )
             ) {
@@ -275,11 +209,11 @@ const WorldMap: React.FC<WorldMapProps> = () => {
             return "#eee"
           }}
           polygonStrokeColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+            if (countriesFoundByISO[normalizedCountryCode(d.ADM0_A3_IS)])
               return mapColor.border
 
             if (
-              !countries.find(
+              !countriesTotal.find(
                 (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
               )
             ) {
@@ -289,11 +223,11 @@ const WorldMap: React.FC<WorldMapProps> = () => {
             return "#aaa"
           }}
           polygonCapColor={({ properties: d }: any) => {
-            if (guessed[normalizedCountryCode(d.ADM0_A3_IS)])
+            if (countriesFoundByISO[normalizedCountryCode(d.ADM0_A3_IS)])
               return mapColor.fill
 
             if (
-              !countries.find(
+              !countriesTotal.find(
                 (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
               )
             ) {
@@ -304,14 +238,18 @@ const WorldMap: React.FC<WorldMapProps> = () => {
           }}
           polygonLabel={({ properties: d }: any) => {
             if (
-              guessedCountries.find(
+              countriesFound.find(
                 (c) => c.iso === normalizedCountryCode(d.ADM0_A3_IS)
               )
             ) {
               return `<b>${d.NAME}</b>`
             }
 
-            if (!countries.find((c) => c.iso === d.ADM0_A3_IS)) {
+            if (!countriesTotal.find((c) => c.iso === d.ADM0_A3_IS)) {
+              return `<b>${d.NAME}</b>`
+            }
+
+            if (state === "timed-out") {
               return `<b>${d.NAME}</b>`
             }
 

@@ -1,13 +1,27 @@
 {
-  "name": "shared",
+  "name": "@globe-trottr/shared",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "generate:types": "tsc --build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.15.1"
+  "packageManager": "pnpm@10.15.1",
+  "exports": {
+    "./types/*": "./build/types/*",
+    "./utils/*": "./build/utils/*",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.10.0"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.59.0",
+    "@bufbuild/protoc-gen-es": "^2.10.0",
+    "typescript": "^5.9.3"
+  }
 }

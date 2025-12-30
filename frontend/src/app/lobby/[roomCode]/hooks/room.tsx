@@ -1,49 +1,42 @@
 "use client"
 
-import { createContext, type PropsWithChildren, useContext } from "react"
+import {
+  createContext,
+  type PropsWithChildren,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
+import { useStore } from "zustand"
+import { createGameStore, type GameProps, type GameStore } from "../stores/game"
 
-type RoomContext = {
-  roomCode: string
-  qrcodeDataURL: string
-}
-
-const RoomContext = createContext<RoomContext>({
-  roomCode: "",
-  qrcodeDataURL: "",
-})
+const GameContext = createContext<GameStore | null>(null)
 
 type SettingsProps = {
   roomCode: string
-  qrcodeDataURL: string
 } & PropsWithChildren
 
-export const Provider: React.FC<SettingsProps> = ({
-  roomCode,
-  qrcodeDataURL,
-  children,
-}) => {
-  return (
-    <RoomContext.Provider
-      value={{
-        roomCode,
-        qrcodeDataURL,
-      }}
-    >
-      {children}
-    </RoomContext.Provider>
-  )
+export const Provider: React.FC<SettingsProps> = ({ roomCode, children }) => {
+  const [store] = useState(() => createGameStore(roomCode))
+  const ref = useRef(false)
+
+  useEffect(() => {
+    if (ref.current) return
+    ref.current = true
+    const state = store.getState()
+    state.connect()
+  }, [store.getState])
+
+  return <GameContext.Provider value={store}>{children}</GameContext.Provider>
 }
 
-export const useRoom = () => {
-  const context = useContext(RoomContext)
-
-  if (!context) {
-    throw new Error("useRoom must be used within a Room Provider")
-  }
-
-  return context
+export function useGameStore<T>(selector: (state: GameProps) => T): T {
+  const store = useContext(GameContext)
+  if (!store) throw new Error("Missing Game.Provider in the tree")
+  return useStore(store, selector)
 }
 
-export const Room = {
+export const Game = {
   Provider,
 }

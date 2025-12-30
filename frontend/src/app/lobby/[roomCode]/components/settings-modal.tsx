@@ -1,5 +1,6 @@
 import { Clock as ClockIcon } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useShallow } from "zustand/shallow"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,32 +15,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { trpc } from "@/lib/trpc"
-import { useRoom } from "../hooks/room"
-import { useSettings } from "../hooks/settings"
+import { useGameStore } from "../hooks/room"
 
-interface GameModeModalProps {
+type GameModeModalProps = {
   isOpen: boolean
   onClose: () => void
 }
 
 const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
-  const { roomCode } = useRoom()
-  const { delay: defaultDelay, duration: defaultDuration } = useSettings()
-  const [delay, setDelay] = useState(defaultDelay)
-  const [duration, setDuration] = useState(defaultDuration)
+  const { settings, changeSettings } = useGameStore(
+    useShallow((store) => ({
+      settings: store.settings,
+      changeSettings: store.changeSettings,
+    }))
+  )
+
+  const [delay, setDelay] = useState(settings.delay ?? 0)
+  const [duration, setDuration] = useState(settings.duration ?? 0)
 
   useEffect(() => {
-    setDelay(defaultDelay)
-    setDuration(defaultDuration)
-  }, [defaultDelay, defaultDuration])
-
-  const gameSettingsChangeMutation =
-    trpc.mutationGameSettingsChange.useMutation({
-      onSuccess: () => {
-        onClose()
-      },
-    })
+    setDelay(settings.delay ?? 0)
+    setDuration(settings.duration ?? 0)
+  }, [settings.delay, settings.duration])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,7 +55,9 @@ const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
                 </span>
                 <Select
                   value={delay.toString()}
-                  onValueChange={(value) => setDelay(parseInt(value, 10))}
+                  onValueChange={(value) => {
+                    setDelay(parseInt(value, 10))
+                  }}
                 >
                   <SelectTrigger className="grow-1">
                     <SelectValue placeholder="Select time" />
@@ -81,7 +80,9 @@ const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
                 </span>
                 <Select
                   value={duration.toString()}
-                  onValueChange={(value) => setDuration(parseInt(value, 10))}
+                  onValueChange={(value) => {
+                    setDuration(parseInt(value, 10))
+                  }}
                 >
                   <SelectTrigger className="grow-1">
                     <SelectValue placeholder="Select time" />
@@ -98,8 +99,7 @@ const SettingsModal: React.FC<GameModeModalProps> = ({ isOpen, onClose }) => {
           </div>
           <Button
             onClick={() => {
-              gameSettingsChangeMutation.mutate({
-                roomCode,
+              changeSettings({
                 delay,
                 duration,
               })

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package core.v1.messages;
+
+message GameSettings {
+  int32 max_players = 1;
+  int32 delay = 2;
+  int32 duration = 3;
+}

@@ -5,6 +5,10 @@
       "dependsOn": [],
       "cache": false
     },
+    "generate:types": {
+      "dependsOn": [],
+      "cache": false
+    },
     "build": {
       "dependsOn": [],
       "outputs": ["dist/**", "build/**"]

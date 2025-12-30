@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { server } from "@/trpc"
-import { Game } from "./components/game"
+import { Main } from "./components/game"
 
 type Params = {
   params: {
@@ -17,12 +17,12 @@ async function App({ params }: Params) {
     }
   }
 
-  const { roomCode, qrcodeDataURL } = await getRoom()
+  const { roomCode } = await getRoom()
 
   return (
     <div className="min-h-screen py-8 px-2 sm:px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
-        <Game roomCode={roomCode} qrcodeDataURL={qrcodeDataURL} />
+        <Main roomCode={roomCode} />
       </div>
     </div>
   )

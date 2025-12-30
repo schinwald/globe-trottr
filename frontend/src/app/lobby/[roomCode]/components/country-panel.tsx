@@ -1,31 +1,30 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { MapIcon } from "lucide-react"
 import type React from "react"
-import { useState } from "react"
-import { trpc } from "@/lib/trpc"
-import type { Country } from "../../../../../../backend/src/utils/countries"
+import { useCallback } from "react"
+import { useShallow } from "zustand/shallow"
+import { useGameStore } from "../hooks/room"
 
-interface GameStatsProps {
-  roomCode: string
-}
+type CountryPanelProps = Record<string, never>
 
-const CountryPanel: React.FC<GameStatsProps> = ({ roomCode }) => {
-  const [countries, setCountries] = useState<
-    (Country & { guessed: boolean })[]
-  >([])
-
-  trpc.subscriptionGameCountryStatuses.useSubscription(
-    {
-      roomCode,
-    },
-    {
-      onData: (data) => {
-        setCountries(data.countries)
-      },
-    }
+const CountryPanel: React.FC<CountryPanelProps> = () => {
+  const { state, countriesFound, countriesTotal } = useGameStore(
+    useShallow((store) => ({
+      state: store.state,
+      countriesFound: store.countriesFound,
+      countriesTotal: store.countriesTotal,
+    }))
   )
 
-  const guessedCountries = countries.filter((country) => country.guessed)
+  const getMissedCountries = useCallback(() => {
+    if (state !== "timed-out") return []
+    const mapping = new Map(
+      countriesFound.map((country) => [country.iso, country])
+    )
+    return countriesTotal.filter((country) => !mapping.has(country.iso))
+  }, [countriesFound, countriesTotal, state])
+
+  const countriesMissed = getMissedCountries()
 
   return (
     <div className="bg-white rounded-xl border border-gray-300 shadow-xl flex flex-col gap-4 p-4 h-full">
@@ -35,20 +34,32 @@ const CountryPanel: React.FC<GameStatsProps> = ({ roomCode }) => {
           <h2 className="font-medium">Countries</h2>
         </header>
         <span>
-          {guessedCountries.length} / {countries.length}
+          {countriesFound.length} / {countriesTotal.length}
         </span>
       </div>
       <div className="rounded-lg outline-gray-200 outline-1 border-10 border-white flex flex-col overflow-y-auto gap-2 h-full">
-        {guessedCountries.length > 0 ? (
+        {countriesMissed.length + countriesFound.length > 0 ? (
           <AnimatePresence>
-            {guessedCountries.map((country) => (
+            {countriesMissed.map((country) => (
               <motion.div
                 key={country.id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
-                className="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm truncate"
+                className="shrink-0 px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm truncate"
+              >
+                {country.name}
+              </motion.div>
+            ))}
+            {countriesFound.map((country) => (
+              <motion.div
+                key={country.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                className="shrink-0 px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm truncate"
               >
                 {country.name}
               </motion.div>

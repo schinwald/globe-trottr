@@ -1,11 +1,11 @@
 "use client"
 
+import type { User } from "@globe-trottr/shared/types/proto/v1/messages/room_connections_pb.js"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trpc } from "@/lib/trpc"
-import type { User } from "../../../../../backend/src/utils/redis-schema"
 
 type CreateRoomProps = {
   user?: User

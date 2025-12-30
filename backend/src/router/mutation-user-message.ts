@@ -1,0 +1,96 @@
+import {
+	countries,
+	validateGuess,
+} from "@globe-trottr/shared/utils/countries.js";
+import { deriveGameState } from "@globe-trottr/shared/utils/game.js";
+import { TRPCError } from "@trpc/server";
+import z from "zod";
+import { CHANNELS } from "../utils/redis/channels.js";
+import {
+	gameCountriesFoundRepository,
+	gameRepository,
+} from "../utils/redis/models/index.js";
+import { publish } from "../utils/redis/publisher.js";
+import { t } from "../utils/trpc.js";
+import { requireUser } from "../utils/user.js";
+
+export const procedure = t.procedure
+	.input(
+		z.object({
+			roomCode: z.string(),
+			message: z.string().min(1),
+		}),
+	)
+	.mutation(async ({ input, ctx }) => {
+		const user = requireUser(ctx);
+
+		const game = await gameRepository
+			.search()
+			.where("roomCode")
+			.equals(input.roomCode)
+			.returnFirst();
+
+		if (!game) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Game not found",
+			});
+		}
+
+		const countryIdsFound = await gameCountriesFoundRepository
+			.search()
+			.where("roomCode")
+			.equals(input.roomCode)
+			.returnAll()
+			.then((countriesFound) =>
+				countriesFound.map((country) => country.countryId),
+			);
+
+		const countriesFound = countries.filter((country) => {
+			return countryIdsFound.includes(country.id);
+		});
+
+		const state = deriveGameState({
+			startedAt: game.startedAt,
+			duration: game.settingsDuration,
+			delay: game.settingsDelay,
+			countriesFound,
+		});
+
+		const guess = validateGuess(input.message);
+
+		if (["in-progress"].includes(state)) {
+			ctx.log.info({ input }, "Guessing country");
+
+			if (guess) {
+				await gameCountriesFoundRepository.save({
+					roomCode: input.roomCode,
+					userId: user.id,
+					countryId: guess.id,
+					timestamp: new Date(),
+				});
+				ctx.log.info({ guess }, "Successfully guessed country");
+			}
+
+			await publish(CHANNELS.USER_MESSAGES(input.roomCode), {
+				userId: user.id,
+				message: input.message,
+				meta: {
+					case: "metaGuess",
+					value: {
+						isCorrect: Boolean(guess),
+						countryId: guess?.iso,
+					},
+				},
+			});
+		} else {
+			await publish(CHANNELS.USER_MESSAGES(input.roomCode), {
+				userId: user.id,
+				message: input.message,
+				meta: {
+					case: "metaMessage",
+					value: {},
+				},
+			});
+		}
+	});

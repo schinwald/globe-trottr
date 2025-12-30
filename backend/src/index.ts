@@ -6,13 +6,13 @@ import Fastify from "fastify";
 import { WebSocketServer } from "ws";
 import { appRouter } from "./router/index.js";
 import { createHTTPContext, createWSContext } from "./utils/context.js";
-import { createRedis } from "./utils/redis.js";
+import { createRedis } from "./utils/redis/setup.js";
 
 const fastify = Fastify({
 	logger: true,
 });
 
-createRedis(fastify);
+await createRedis(fastify);
 
 fastify.register(cookie, {
 	secret: process.env.COOKIE_SESSION_SECRET,

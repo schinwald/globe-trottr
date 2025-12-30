@@ -3,36 +3,23 @@
 import { SendIcon } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
-import { useGuessNotification } from "@/app/lobby/[roomCode]/components/guess"
+import { useShallow } from "zustand/shallow"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { trpc } from "@/lib/trpc"
-import { useRoom } from "../hooks/room"
+import { useGameStore } from "../hooks/room"
 
-type GameControlsProps = {}
+type GameControlsProps = Record<string, never>
 
 const Messager: React.FC<GameControlsProps> = () => {
-  const { roomCode } = useRoom()
-  const [guess, setGuess] = useState("")
-  const inputRef = useRef<HTMLInputElement>(null)
-  const triggerUserGuess = useGuessNotification()
-
-  const userMessageMutation = trpc.mutationUserMessage.useMutation({
-    onMutate: () => {
-      setGuess("")
-    },
-  })
-
-  trpc.subscriptionUserMessages.useSubscription(
-    {
-      roomCode,
-    },
-    {
-      onData: (data) => {
-        triggerUserGuess({ userId: data.userId, guess: data.guess })
-      },
-    }
+  const { sendMessage } = useGameStore(
+    useShallow((state) => ({
+      roomCode: state.roomCode,
+      sendMessage: state.sendMessage,
+    }))
   )
+
+  const [message, setMessage] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="w-full mx-auto p-6">
@@ -40,11 +27,12 @@ const Messager: React.FC<GameControlsProps> = () => {
         <Input
           ref={inputRef}
           type="text"
-          value={guess}
-          onChange={(e) => setGuess(e.target.value)}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           onKeyUp={(e) => {
             if (e.key === "Enter") {
-              userMessageMutation.mutate({ roomCode, guess })
+              sendMessage(message)
+              setMessage("")
             }
           }}
           placeholder="Enter a country name..."
@@ -52,7 +40,8 @@ const Messager: React.FC<GameControlsProps> = () => {
         />
         <Button
           onClick={() => {
-            return userMessageMutation.mutate({ roomCode, guess })
+            sendMessage(message)
+            setMessage("")
           }}
         >
           <SendIcon className="size-4" />

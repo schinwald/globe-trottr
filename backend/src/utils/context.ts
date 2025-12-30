@@ -1,20 +1,23 @@
-import type { AnyRouter } from "@trpc/server";
 import type { CreateWSSContextFnOptions } from "@trpc/server/adapters/ws";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
-import { getUser } from "./redis-schema.js";
+import { userRepository } from "./redis/models/index.js";
 
 const getUserFromCookie = async (token?: string) => {
 	if (!token) return undefined;
 
-	const payload = jwt.verify(token, process.env.COOKIE_SESSION_SECRET) as {
+	const payload = jwt.verify(token, process.env.COOKIE_SESSION_SECRET!) as {
 		sessionId: string;
 	};
 
-	const user = await getUser(payload.sessionId);
+	const user = await userRepository
+		.search()
+		.where("id")
+		.equals(payload.sessionId)
+		.returnFirst();
 
 	if (!user) {
-		throw new Error("User not found");
+		// TODO: remove cookie
 	}
 
 	return user;
@@ -24,8 +27,9 @@ export function createHTTPContext(fastify: FastifyInstance) {
 	const log = fastify.log;
 
 	return async ({ req, res }: { req: FastifyRequest; res: FastifyReply }) => {
+		const cookies = req.cookies || {};
 		const info = {
-			user: await getUserFromCookie(req.cookies?.auth),
+			user: await getUserFromCookie(cookies.auth),
 		};
 
 		return {

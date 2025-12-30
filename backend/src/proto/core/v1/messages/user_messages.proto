@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package core.v1.messages;
+
+message UserMessage {
+  string user_id = 1;
+  string message = 2;
+  oneof meta {
+    MetaGuess meta_guess = 3;
+    MetaMessage meta_message = 4;
+  }
+}
+
+message MetaGuess {
+  bool is_correct = 1;
+  string country_id = 2;
+}
+
+message MetaMessage {}
