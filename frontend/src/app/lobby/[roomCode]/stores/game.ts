@@ -17,6 +17,7 @@ import type { User } from "../../../../../../backend/src/utils/redis/models/user
 
 export type GameProps = {
   roomCode: string
+  qrcodeDataURL: string
   me: User
   users: {
     id: string
@@ -51,11 +52,13 @@ export type GameStore = ReturnType<typeof createGameStore>
 type CreateGameStoreArgs = {
   me: User
   roomCode: string
+  qrcodeDataURL: string
 }
 
 export const createGameStore = (args: CreateGameStoreArgs) => {
   return createStore<GameProps>((set, get) => ({
     roomCode: args.roomCode,
+    qrcodeDataURL: args.qrcodeDataURL,
     me: args.me,
     users: [],
     state: "in-progress",

@@ -2,6 +2,7 @@
 
 import { Copy } from "lucide-react"
 import { useMemo } from "react"
+import { useShallow } from "zustand/shallow"
 import { Floater } from "@/components/floater"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,20 +13,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { useGameStore } from "../hooks/room"
 
 interface InviteModalProps {
   isOpen: boolean
   onClose: () => void
   roomCode: string
-  qrDataUrl?: string
 }
 
 export const InviteModal: React.FC<InviteModalProps> = ({
   isOpen,
   onClose,
   roomCode,
-  qrDataUrl,
 }) => {
+  const { qrcodeDataURL } = useGameStore(
+    useShallow((store) => ({ qrcodeDataURL: store.qrcodeDataURL }))
+  )
+
   const inviteUrl = useMemo(() => {
     if (typeof window === "undefined") return ""
     return `${window.location.origin}/lobby/${roomCode}`
@@ -45,15 +49,15 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         <div className="flex flex-col gap-4">
           <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
             <div className="space-y-4">
-              {qrDataUrl && (
+              {qrcodeDataURL ? (
                 <div className="flex justify-center">
                   <img
-                    src={qrDataUrl}
+                    src={qrcodeDataURL}
                     alt="QR Code for room invite"
-                    className="w-48 h-48 border border-gray-300 rounded-lg"
+                    className="w-full h-full border border-gray-200 rounded-lg"
                   />
                 </div>
-              )}
+              ) : null}
               <div className="flex gap-2">
                 <Input value={inviteUrl} readOnly className="flex-1" />
                 <Floater.Root>
@@ -69,7 +73,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({
                       </div>
                     </Button>
                   </Floater.Trigger>
-                  <Floater.Portal className="">Copied!</Floater.Portal>
+                  <Floater.Portal>Copied!</Floater.Portal>
                 </Floater.Root>
               </div>
             </div>
@@ -79,4 +83,3 @@ export const InviteModal: React.FC<InviteModalProps> = ({
     </Dialog>
   )
 }
-

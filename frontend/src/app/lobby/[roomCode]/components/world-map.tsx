@@ -76,7 +76,9 @@ const WorldMap: React.FC<WorldMapProps> = () => {
     if (!globeRef.current) return
     const country = countriesFound[0]
     if (!country) return
-    const [lng, lat] = countryPositions[country.iso]
+    const position = countryPositions[country.iso]
+    if (!position) return
+    const [lng, lat] = position
     globeRef.current.pointOfView({ lat, lng }, 1000)
   }, [countriesFound])
 

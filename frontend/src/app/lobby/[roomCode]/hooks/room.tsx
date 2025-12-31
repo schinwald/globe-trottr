@@ -17,14 +17,18 @@ const GameContext = createContext<GameStore | null>(null)
 type SettingsProps = {
   me: User
   roomCode: string
+  qrcodeDataURL: string
 } & PropsWithChildren
 
 export const Provider: React.FC<SettingsProps> = ({
   me,
   roomCode,
+  qrcodeDataURL,
   children,
 }) => {
-  const [store] = useState(() => createGameStore({ me, roomCode }))
+  const [store] = useState(() =>
+    createGameStore({ me, roomCode, qrcodeDataURL })
+  )
   const ref = useRef(false)
 
   useEffect(() => {

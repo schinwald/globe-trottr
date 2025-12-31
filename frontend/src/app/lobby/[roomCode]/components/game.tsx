@@ -20,9 +20,10 @@ const bigLogoURL = "/big-logo.svg"
 interface GameProps {
   me: User
   room: Room
+  qrcodeDataURL: string
 }
 
-const Main: React.FC<GameProps> = ({ me, room }) => {
+const Main: React.FC<GameProps> = ({ me, room, qrcodeDataURL }) => {
   const [error, setError] = useState<ErrorType>()
 
   // setError({
@@ -36,7 +37,11 @@ const Main: React.FC<GameProps> = ({ me, room }) => {
   // })
 
   return (
-    <Game.Provider me={me} roomCode={room.roomCode}>
+    <Game.Provider
+      me={me}
+      roomCode={room.roomCode}
+      qrcodeDataURL={qrcodeDataURL}
+    >
       <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
         <div className="col-span-3 sm:hidden flex justify-start items-end">
           <Button variant="ghost" size="xs">
