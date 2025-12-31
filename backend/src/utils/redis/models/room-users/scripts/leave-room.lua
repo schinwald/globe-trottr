@@ -10,9 +10,13 @@ if redis.call("EXISTS", docId) == 0 then
 	return { success = false, message = "user not in room" }
 end
 
+-- Check if leaving user was host
+local roleStr = redis.call("JSON.GET", docId, "$.role")
+local role = roleStr and cjson.decode(roleStr)[1] or nil
+
 -- Fetch current connections
 local connectionsStr = redis.call("JSON.GET", docId, "$.connections")
-local connections = tonumber(connectionsStr and connectionsStr[1] or "0")
+local connections = tonumber(connectionsStr and cjson.decode(connectionsStr)[1] or "0")
 
 -- Decrement connections
 connections = connections - 1
@@ -24,10 +28,6 @@ else
 	-- Update the connections field
 	redis.call("JSON.SET", docId, "$.connections", tostring(connections))
 end
-
--- Optional: check if leaving user was host
-local roleStr = redis.call("JSON.GET", docId, "$.role")
-local role = roleStr and cjson.decode(roleStr[1]) or nil
 
 local hostReassigned = false
 

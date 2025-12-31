@@ -1,18 +1,18 @@
-import { t } from "../utils/trpc.js";
-import { procedure as mutationGameSettings } from "./mutation-game-settings.js";
-import { procedure as mutationGameStart } from "./mutation-game-start.js";
-import { procedure as mutationRoomCreate } from "./mutation-room-create.js";
-import { procedure as mutationUserAuthenticate } from "./mutation-user-authenticate.js";
-import { procedure as mutationUserMessage } from "./mutation-user-message.js";
-import { procedure as queryCountriesFound } from "./query-countries-found.js";
-import { procedure as queryMe } from "./query-me.js";
-import { procedure as queryRoom } from "./query-room.js";
-import { procedure as subscriptionGameSettings } from "./subscription-game-settings.js";
-import { procedure as subscriptionGameStatuses } from "./subscription-game-statuses.js";
-import { procedure as subscriptionRoomConnections } from "./subscription-room-connections.js";
-import { procedure as subscriptionUserMessages } from "./subscription-user-messages.js";
+import { router } from "../utils/trpc.js";
+import { p as mutationGameSettings } from "./mutation-game-settings.js";
+import { p as mutationGameStart } from "./mutation-game-start.js";
+import { p as mutationRoomCreate } from "./mutation-room-create.js";
+import { p as mutationUserAuthenticate } from "./mutation-user-authenticate.js";
+import { p as mutationUserMessage } from "./mutation-user-message.js";
+import { p as queryCountriesFound } from "./query-countries-found.js";
+import { p as queryMe } from "./query-me.js";
+import { p as queryRoom } from "./query-room.js";
+import { p as subscriptionGameSettings } from "./subscription-game-settings.js";
+import { p as subscriptionGameStatuses } from "./subscription-game-statuses.js";
+import { p as subscriptionRoomConnections } from "./subscription-room-connections.js";
+import { p as subscriptionUserMessages } from "./subscription-user-messages.js";
 
-export const appRouter = t.router({
+export const appRouter = router({
 	subscriptionGameSettings,
 	subscriptionGameStatuses,
 	subscriptionRoomConnections,

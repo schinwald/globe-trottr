@@ -4,10 +4,10 @@ import z from "zod/v4";
 import { CHANNELS, publish, subscribe } from "../utils/redis/index.js";
 import { roomUsersRepository } from "../utils/redis/models/index.js";
 import { getRoomConnectionsFromEntities } from "../utils/redis/utils/room-connections.js";
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 import { requireUser } from "../utils/user.js";
 
-export const procedure = t.procedure
+export const p = procedure
 	.input(z.object({ roomCode: z.string() }))
 	.subscription(async function* ({ input, signal, ctx }) {
 		const user = requireUser(ctx);
@@ -41,15 +41,17 @@ export const procedure = t.procedure
 			for await (const data of iterator) {
 				yield data as RoomConnections;
 			}
-		} catch (error) {
-			console.error(error);
 		} finally {
 			await (async () => {
-				const left = await roomUsersRepository.leaveRoom({
-					roomCode: input.roomCode,
-					userId: user.id,
-				});
-				if (!left) return;
+				try {
+					const left = await roomUsersRepository.leaveRoom({
+						roomCode: input.roomCode,
+						userId: user.id,
+					});
+					if (!left) return;
+				} catch (error) {
+					console.error(error);
+				}
 
 				const roomConnections = await getRoomConnectionsFromEntities(
 					input.roomCode,

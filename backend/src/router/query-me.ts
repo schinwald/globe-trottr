@@ -1,5 +1,5 @@
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 
-export const procedure = t.procedure.query(async ({ ctx }) => {
+export const p = procedure.query(async ({ ctx }) => {
 	return ctx.info.user;
 });

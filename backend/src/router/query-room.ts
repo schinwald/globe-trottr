@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import z from "zod";
 import { roomRepository } from "../utils/redis/models/index.js";
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 
-export const procedure = t.procedure
+export const p = procedure
 	.input(z.object({ roomCode: z.string() }))
 	.query(async ({ input }) => {
 		const room = await roomRepository

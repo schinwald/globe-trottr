@@ -6,10 +6,10 @@ import { CHANNELS } from "../utils/redis/channels.js";
 import { gameRepository } from "../utils/redis/models/games/index.js";
 import { gameCountriesFoundRepository } from "../utils/redis/models/index.js";
 import { publish } from "../utils/redis/publisher.js";
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 import { requireUser } from "../utils/user.js";
 
-export const procedure = t.procedure
+export const p = procedure
 	.input(
 		z.object({
 			roomCode: z.string(),

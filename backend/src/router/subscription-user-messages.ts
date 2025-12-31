@@ -1,9 +1,9 @@
 import z from "zod";
 import { CHANNELS, subscribe } from "../utils/redis/index.js";
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 import { requireUser } from "../utils/user.js";
 
-export const procedure = t.procedure
+export const p = procedure
 	.input(z.object({ roomCode: z.string() }))
 	.subscription(async function* ({ input, signal, ctx }) {
 		requireUser(ctx);
@@ -17,8 +17,6 @@ export const procedure = t.procedure
 			for await (const data of iterator) {
 				yield data;
 			}
-		} catch (error) {
-			console.error(error);
 		} finally {
 			await subscriber.unsubscribe();
 			subscriber.disconnect();

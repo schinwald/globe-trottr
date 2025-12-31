@@ -3,9 +3,9 @@ import { TRPCError } from "@trpc/server";
 import z from "zod/v4";
 import { CHANNELS, subscribe } from "../utils/redis/index.js";
 import { getGameStatusFromEntities } from "../utils/redis/utils/game-status.js";
-import { t } from "../utils/trpc.js";
+import { procedure } from "../utils/trpc.js";
 
-export const procedure = t.procedure
+export const p = procedure
 	.input(z.object({ roomCode: z.string() }))
 	.subscription(async function* ({ input, signal }) {
 		const { iterator, subscriber } = await subscribe(
@@ -28,8 +28,6 @@ export const procedure = t.procedure
 			for await (const data of iterator) {
 				yield data as GameStatus;
 			}
-		} catch (error) {
-			console.error(error);
 		} finally {
 			await subscriber.unsubscribe();
 			subscriber.disconnect();
