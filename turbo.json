@@ -5,8 +5,12 @@
       "dependsOn": [],
       "cache": false
     },
-    "generate:types": {
+    "generate:code": {
       "dependsOn": [],
+      "cache": false
+    },
+    "generate:types": {
+      "dependsOn": ["generate:code"],
       "cache": false
     },
     "build": {

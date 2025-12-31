@@ -2,17 +2,21 @@ syntax = "proto3";
 
 package core.v1.messages;
 
+import "google/protobuf/timestamp.proto";
+
 message UserMessage {
-  string user_id = 1;
-  string message = 2;
+  string id = 1;
+  string user_id = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
   oneof meta {
-    MetaGuess meta_guess = 3;
-    MetaMessage meta_message = 4;
+    MetaGuess meta_guess = 5;
+    MetaMessage meta_message = 6;
   }
 }
 
 message MetaGuess {
-  bool is_correct = 1;
+  int32 score = 1;
   string country_id = 2;
 }
 

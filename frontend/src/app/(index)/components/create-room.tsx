@@ -1,22 +1,22 @@
 "use client"
 
-import type { User } from "@globe-trottr/shared/types/proto/v1/messages/room_connections_pb.js"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { trpc } from "@/lib/trpc"
+import type { User } from "../../../../../backend/src/utils/redis/models/users/types"
 
 type CreateRoomProps = {
-  user?: User
+  me?: User | null
   placeholderUsername: string
 }
 
 export const CreateRoom: React.FC<CreateRoomProps> = ({
-  user,
+  me,
   placeholderUsername,
 }) => {
-  const [username, setUsername] = useState(user?.username ?? "")
+  const [username, setUsername] = useState(me?.username ?? "")
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   const searchParams = useSearchParams()

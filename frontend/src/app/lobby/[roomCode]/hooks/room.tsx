@@ -9,16 +9,22 @@ import {
   useState,
 } from "react"
 import { useStore } from "zustand"
+import type { User } from "../../../../../../backend/src/utils/redis/models/users/types"
 import { createGameStore, type GameProps, type GameStore } from "../stores/game"
 
 const GameContext = createContext<GameStore | null>(null)
 
 type SettingsProps = {
+  me: User
   roomCode: string
 } & PropsWithChildren
 
-export const Provider: React.FC<SettingsProps> = ({ roomCode, children }) => {
-  const [store] = useState(() => createGameStore(roomCode))
+export const Provider: React.FC<SettingsProps> = ({
+  me,
+  roomCode,
+  children,
+}) => {
+  const [store] = useState(() => createGameStore({ me, roomCode }))
   const ref = useRef(false)
 
   useEffect(() => {

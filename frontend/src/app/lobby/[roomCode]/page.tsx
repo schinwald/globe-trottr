@@ -9,20 +9,18 @@ type Params = {
 }
 
 async function App({ params }: Params) {
-  const getRoom = async () => {
-    try {
-      return await server.queryRoom.query({ roomCode: params.roomCode })
-    } catch {
-      redirect("/")
-    }
-  }
+  const [me, room] = await Promise.all([
+    server.queryMe.query(),
+    server.queryRoom.query({ roomCode: params.roomCode }),
+  ])
 
-  const { roomCode } = await getRoom()
+  if (!me) redirect("/")
+  if (!room) redirect("/")
 
   return (
     <div className="min-h-screen py-8 px-2 sm:px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
-        <Main roomCode={roomCode} />
+        <Main me={me} room={room} />
       </div>
     </div>
   )

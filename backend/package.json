@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "generate:types": "./scripts/GENERATE_TYPES.sh",
+    "generate:types": "tsc --build",
+    "generate:code": "./scripts/GENERATE_TYPES.sh",
     "lint": "tsc",
     "dev": "tsx --watch --env-file=.env src/index.ts",
     "start": "node --env-file=.env ./build/index.js"

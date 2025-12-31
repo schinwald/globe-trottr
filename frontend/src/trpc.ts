@@ -7,6 +7,7 @@ import {
   splitLink,
   wsLink,
 } from "@trpc/client"
+import { headers } from "next/headers.js"
 import superjson from "superjson"
 import type { AppRouter } from "../../backend/src/router/index.js"
 
@@ -28,6 +29,10 @@ export const client = createTRPCClient<AppRouter>({
 
 export const server = createTRPCProxyClient<AppRouter>({
   links: [
-    httpBatchLink({ url: `http://localhost:5000/api`, transformer: superjson }),
+    httpBatchLink({
+      url: `http://localhost:5000/api`,
+      transformer: superjson,
+      headers: headers,
+    }),
   ],
 })

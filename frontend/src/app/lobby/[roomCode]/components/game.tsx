@@ -7,6 +7,8 @@ import { LobbyPanel } from "@/app/lobby/[roomCode]/components/lobby-panel"
 import ErrorModal from "@/components/ErrorModal"
 import { Button } from "@/components/ui/button"
 import type { ErrorType } from "@/utils/errors"
+import type { Room } from "../../../../../../backend/src/utils/redis/models/rooms/types"
+import type { User } from "../../../../../../backend/src/utils/redis/models/users/types"
 import { Game } from "../hooks/room"
 import { CountryPanel } from "./country-panel"
 import { Messager } from "./messager"
@@ -16,10 +18,11 @@ const smallLogoURl = "/small-logo.svg"
 const bigLogoURL = "/big-logo.svg"
 
 interface GameProps {
-  roomCode: string
+  me: User
+  room: Room
 }
 
-const Main: React.FC<GameProps> = ({ roomCode }) => {
+const Main: React.FC<GameProps> = ({ me, room }) => {
   const [error, setError] = useState<ErrorType>()
 
   // setError({
@@ -33,7 +36,7 @@ const Main: React.FC<GameProps> = ({ roomCode }) => {
   // })
 
   return (
-    <Game.Provider roomCode={roomCode}>
+    <Game.Provider me={me} roomCode={room.roomCode}>
       <div className="grid grid-cols-12 auto-rows-auto max-w-screen-2xl gap-4">
         <div className="col-span-3 sm:hidden flex justify-start items-end">
           <Button variant="ghost" size="xs">

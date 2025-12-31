@@ -3,7 +3,9 @@ import {
 	validateGuess,
 } from "@globe-trottr/shared/utils/countries.js";
 import { deriveGameState } from "@globe-trottr/shared/utils/game.js";
+import { timestampFromDate } from "@globe-trottr/shared/utils/protobuf.js";
 import { TRPCError } from "@trpc/server";
+import crypto from "crypto";
 import z from "zod";
 import { CHANNELS } from "../utils/redis/channels.js";
 import {
@@ -58,6 +60,7 @@ export const procedure = t.procedure
 		});
 
 		const guess = validateGuess(input.message);
+		const timestamp = new Date();
 
 		if (["in-progress"].includes(state)) {
 			ctx.log.info({ input }, "Guessing country");
@@ -67,26 +70,30 @@ export const procedure = t.procedure
 					roomCode: input.roomCode,
 					userId: user.id,
 					countryId: guess.id,
-					timestamp: new Date(),
+					timestamp,
 				});
 				ctx.log.info({ guess }, "Successfully guessed country");
 			}
 
 			await publish(CHANNELS.USER_MESSAGES(input.roomCode), {
+				id: crypto.randomUUID(),
 				userId: user.id,
 				message: input.message,
+				timestamp: timestampFromDate(timestamp),
 				meta: {
 					case: "metaGuess",
 					value: {
-						isCorrect: Boolean(guess),
+						score: guess ? 1 : 0,
 						countryId: guess?.iso,
 					},
 				},
 			});
 		} else {
 			await publish(CHANNELS.USER_MESSAGES(input.roomCode), {
+				id: crypto.randomUUID(),
 				userId: user.id,
 				message: input.message,
+				timestamp: timestampFromDate(timestamp),
 				meta: {
 					case: "metaMessage",
 					value: {},

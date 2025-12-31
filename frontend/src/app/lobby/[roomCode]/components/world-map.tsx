@@ -12,6 +12,7 @@ import { useShallow } from "zustand/shallow"
 import { Button } from "@/components/ui/button"
 import pointsData from "@/data/world.json"
 import { useGameStore } from "../hooks/room"
+import { Feedback } from "./feedback"
 import { PostStartCountdown } from "./poststart-countdown"
 import { PreStartCountdown } from "./prestart-countdown"
 
@@ -186,6 +187,11 @@ const WorldMap: React.FC<WorldMapProps> = () => {
       </AnimatePresence>
       <div className="absolute right-0 top-0 p-6 z-50 text-white">
         <PostStartCountdown />
+      </div>
+      <div className="absolute w-full bottom-0 p-6 z-50 text-white">
+        <div className="flex justify-center w-full">
+          <Feedback />
+        </div>
       </div>
       <div className="col-span-full row-span-full">
         <Globe

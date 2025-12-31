@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "turbo dev --parallel",
+    "generate:code": "turbo generate:code",
     "generate:types": "turbo generate:types",
     "build": "turbo build",
     "lint": "turbo lint",

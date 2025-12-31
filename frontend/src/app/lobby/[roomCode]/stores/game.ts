@@ -11,12 +11,13 @@ import {
   type GameState,
 } from "@globe-trottr/shared/utils/game.js"
 import { dateFromTimestamp } from "@globe-trottr/shared/utils/protobuf.js"
-import { v4 as uuid } from "uuid"
 import { createStore } from "zustand"
 import { client } from "@/trpc"
+import type { User } from "../../../../../../backend/src/utils/redis/models/users/types"
 
 export type GameProps = {
   roomCode: string
+  me: User
   users: {
     id: string
     username: string
@@ -25,6 +26,10 @@ export type GameProps = {
   state: GameState
   countriesTotal: Country[]
   countriesFound: Country[]
+  guess: {
+    score: number
+  } | null
+  dismissGuess: () => void
   messages: Record<string, UserMessage>
   sendMessage: (message: string) => void
   dismissMessage: (id: string) => void
@@ -43,9 +48,15 @@ export type GameProps = {
 
 export type GameStore = ReturnType<typeof createGameStore>
 
-export const createGameStore = (roomCode: string) => {
+type CreateGameStoreArgs = {
+  me: User
+  roomCode: string
+}
+
+export const createGameStore = (args: CreateGameStoreArgs) => {
   return createStore<GameProps>((set, get) => ({
-    roomCode: roomCode,
+    roomCode: args.roomCode,
+    me: args.me,
     users: [],
     state: "in-progress",
     countriesTotal: countries,
@@ -55,8 +66,18 @@ export const createGameStore = (roomCode: string) => {
       delay: 0,
       duration: 0,
     },
+    guess: null,
+    dismissGuess: () => {
+      set((previous) => {
+        return {
+          ...previous,
+          guess: null,
+        }
+      })
+    },
     messages: {},
     sendMessage: (message) => {
+      const { roomCode } = get()
       client.mutationUserMessage.mutate({
         roomCode,
         message,
@@ -74,6 +95,7 @@ export const createGameStore = (roomCode: string) => {
       })
     },
     changeSettings: (settings) => {
+      const { roomCode } = get()
       client.mutationGameSettings.mutate({
         roomCode,
         settings,
@@ -82,6 +104,7 @@ export const createGameStore = (roomCode: string) => {
     timer: null,
     startedAt: null,
     startGame: () => {
+      const { roomCode } = get()
       client.mutationGameStart.mutate({
         roomCode,
       })
@@ -203,12 +226,14 @@ export const createGameStore = (roomCode: string) => {
         },
         {
           onData: (data) => {
+            const { me } = get()
+
             set((previous) => {
               return {
                 ...previous,
                 messages: {
                   ...previous.messages,
-                  [uuid()]: data,
+                  [data.id]: data,
                 },
               }
             })
@@ -217,9 +242,21 @@ export const createGameStore = (roomCode: string) => {
 
             switch (data.meta.case) {
               case "metaGuess": {
-                const { isCorrect, countryId } = data.meta.value
+                const { score, countryId } = data.meta.value
 
-                if (isCorrect) {
+                set((previous) => {
+                  const newGuess =
+                    data.userId === me.id
+                      ? { id: data.id, score }
+                      : previous.guess
+
+                  return {
+                    ...previous,
+                    guess: newGuess,
+                  }
+                })
+
+                if (score === 1) {
                   const { countriesFound, countriesTotal } = get()
 
                   const alreadyExists = Boolean(

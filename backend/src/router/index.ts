@@ -5,8 +5,8 @@ import { procedure as mutationRoomCreate } from "./mutation-room-create.js";
 import { procedure as mutationUserAuthenticate } from "./mutation-user-authenticate.js";
 import { procedure as mutationUserMessage } from "./mutation-user-message.js";
 import { procedure as queryCountriesFound } from "./query-countries-found.js";
+import { procedure as queryMe } from "./query-me.js";
 import { procedure as queryRoom } from "./query-room.js";
-import { procedure as queryUser } from "./query-user.js";
 import { procedure as subscriptionGameSettings } from "./subscription-game-settings.js";
 import { procedure as subscriptionGameStatuses } from "./subscription-game-statuses.js";
 import { procedure as subscriptionRoomConnections } from "./subscription-room-connections.js";
@@ -24,7 +24,7 @@ export const appRouter = t.router({
 	mutationUserMessage,
 	mutationUserAuthenticate,
 	queryRoom,
-	queryUser,
+	queryMe,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,12 +1,11 @@
 const bigLogoURL = "/big-logo.svg"
 
 import { server } from "@/trpc"
-import type { User } from "../../../../backend/src/utils/redis-schema"
 import { CreateRoom } from "./components/create-room"
 import { getRandomUsername } from "./server/placeholder"
 
 async function App() {
-  const user = (await server.queryUser.query()) as unknown as User
+  const me = await server.queryMe.query()
   const placeholderUsername = await getRandomUsername()
 
   return (
@@ -22,7 +21,7 @@ async function App() {
             Test your geography knowledge! Guess as many countries as you can
             before the timer runs out.
           </p>
-          <CreateRoom user={user} placeholderUsername={placeholderUsername} />
+          <CreateRoom me={me} placeholderUsername={placeholderUsername} />
         </div>
       </div>
     </div>

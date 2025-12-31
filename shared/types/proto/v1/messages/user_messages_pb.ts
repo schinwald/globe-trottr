@@ -4,40 +4,52 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
+import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file v1/messages/user_messages.proto.
  */
 export const file_v1_messages_user_messages: GenFile = /*@__PURE__*/
-  fileDesc("Ch92MS9tZXNzYWdlcy91c2VyX21lc3NhZ2VzLnByb3RvEhBjb3JlLnYxLm1lc3NhZ2VzIqEBCgtVc2VyTWVzc2FnZRIPCgd1c2VyX2lkGAEgASgJEg8KB21lc3NhZ2UYAiABKAkSMQoKbWV0YV9ndWVzcxgDIAEoCzIbLmNvcmUudjEubWVzc2FnZXMuTWV0YUd1ZXNzSAASNQoMbWV0YV9tZXNzYWdlGAQgASgLMh0uY29yZS52MS5tZXNzYWdlcy5NZXRhTWVzc2FnZUgAQgYKBG1ldGEiMwoJTWV0YUd1ZXNzEhIKCmlzX2NvcnJlY3QYASABKAgSEgoKY291bnRyeV9pZBgCIAEoCSINCgtNZXRhTWVzc2FnZWIGcHJvdG8z");
+  fileDesc("Ch92MS9tZXNzYWdlcy91c2VyX21lc3NhZ2VzLnByb3RvEhBjb3JlLnYxLm1lc3NhZ2VzItwBCgtVc2VyTWVzc2FnZRIKCgJpZBgBIAEoCRIPCgd1c2VyX2lkGAIgASgJEg8KB21lc3NhZ2UYAyABKAkSLQoJdGltZXN0YW1wGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCgptZXRhX2d1ZXNzGAUgASgLMhsuY29yZS52MS5tZXNzYWdlcy5NZXRhR3Vlc3NIABI1CgxtZXRhX21lc3NhZ2UYBiABKAsyHS5jb3JlLnYxLm1lc3NhZ2VzLk1ldGFNZXNzYWdlSABCBgoEbWV0YSIuCglNZXRhR3Vlc3MSDQoFc2NvcmUYASABKAUSEgoKY291bnRyeV9pZBgCIAEoCSINCgtNZXRhTWVzc2FnZWIGcHJvdG8z", [file_google_protobuf_timestamp]);
 
 /**
  * @generated from message core.v1.messages.UserMessage
  */
 export type UserMessage = Message<"core.v1.messages.UserMessage"> & {
   /**
-   * @generated from field: string user_id = 1;
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string user_id = 2;
    */
   userId: string;
 
   /**
-   * @generated from field: string message = 2;
+   * @generated from field: string message = 3;
    */
   message: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp timestamp = 4;
+   */
+  timestamp?: Timestamp;
 
   /**
    * @generated from oneof core.v1.messages.UserMessage.meta
    */
   meta: {
     /**
-     * @generated from field: core.v1.messages.MetaGuess meta_guess = 3;
+     * @generated from field: core.v1.messages.MetaGuess meta_guess = 5;
      */
     value: MetaGuess;
     case: "metaGuess";
   } | {
     /**
-     * @generated from field: core.v1.messages.MetaMessage meta_message = 4;
+     * @generated from field: core.v1.messages.MetaMessage meta_message = 6;
      */
     value: MetaMessage;
     case: "metaMessage";
@@ -56,9 +68,9 @@ export const UserMessageSchema: GenMessage<UserMessage> = /*@__PURE__*/
  */
 export type MetaGuess = Message<"core.v1.messages.MetaGuess"> & {
   /**
-   * @generated from field: bool is_correct = 1;
+   * @generated from field: int32 score = 1;
    */
-  isCorrect: boolean;
+  score: number;
 
   /**
    * @generated from field: string country_id = 2;
