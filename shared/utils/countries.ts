@@ -1363,6 +1363,8 @@ export const countries = [
 		matches: [
 			"Saint Kitts and Nevis",
 			"Saint Kitts",
+			"St Kitts and Nevis",
+			"St Kitts",
 			"Nevis",
 			"KN",
 			"Federation of Saint Christopher and Nevis",
@@ -1372,7 +1374,7 @@ export const countries = [
 		id: "LCA",
 		name: "Saint Lucia",
 		iso: "LCA",
-		matches: ["Saint Lucia", "LC"],
+		matches: ["Saint Lucia", "St Lucia", "LC"],
 	},
 	{
 		id: "VCT",
@@ -1380,7 +1382,11 @@ export const countries = [
 		iso: "VCT",
 		matches: [
 			"Saint Vincent and the Grenadines",
+			"Saint Vincent and Grenadines",
 			"Saint Vincent",
+			"St Vincent and the Grenadines",
+			"St Vincent and Grenadines",
+			"St Vincent",
 			"Grendadines",
 		],
 	},
