@@ -17,6 +17,8 @@ export const procedure = t.procedure
 			for await (const data of iterator) {
 				yield data;
 			}
+		} catch (error) {
+			console.error(error);
 		} finally {
 			await subscriber.unsubscribe();
 			subscriber.disconnect();

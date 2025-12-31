@@ -36,9 +36,13 @@ export const procedure = t.procedure
 
 			yield roomConnections as RoomConnections;
 
+			await publish(CHANNELS.ROOM_CONNECTIONS(input.roomCode), roomConnections);
+
 			for await (const data of iterator) {
 				yield data as RoomConnections;
 			}
+		} catch (error) {
+			console.error(error);
 		} finally {
 			await (async () => {
 				const left = await roomUsersRepository.leaveRoom({

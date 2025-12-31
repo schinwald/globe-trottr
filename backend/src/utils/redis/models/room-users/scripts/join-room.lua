@@ -21,17 +21,22 @@ for i = 2, #res, 2 do
 	local docId = res[i]
 	local fields = res[i + 1]
 
-	if fields["role"] == "host" then
+	-- Fields
+	local _userId = fields[2]
+	local _role = fields[4]
+	local _connections = fields[5]
+
+	if _role == "host" then
 		doesRoomHaveHost = true
 	end
 
-	if fields["userId"] == userId then
+	if _userId == userId then
 		-- Fetch current connections as number
-		local connections = tonumber(fields["connections"] or "0")
+		local connections = tonumber(_connections or "0")
 		roomUser = {
 			id = docId,
-			userId = fields["userId"],
-			role = fields["role"],
+			userId = _userId,
+			role = _role,
 			connections = connections,
 		}
 	end
