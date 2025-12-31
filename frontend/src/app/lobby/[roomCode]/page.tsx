@@ -1,7 +1,7 @@
-import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import QRCode from "qrcode"
 import { server } from "@/trpc"
+import { getURL, redirectToHomepage } from "@/utils/server/redirects"
 import { Main } from "./components/game"
 
 type Params = {
@@ -16,11 +16,11 @@ async function App({ params }: Params) {
     server.queryRoom.query({ roomCode: params.roomCode }),
   ])
 
-  const url = headers().get("referer")
+  const url = getURL()
 
-  if (!url) redirect("/")
-  if (!me) redirect("/")
-  if (!room) redirect("/")
+  if (!room) redirect(redirectToHomepage())
+  if (!me) redirect(redirectToHomepage(room.roomCode))
+  if (!url) redirect(redirectToHomepage(room.roomCode))
 
   const qrcodeDataURL = await QRCode.toDataURL(url)
 

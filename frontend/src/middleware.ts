@@ -1,17 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { match } from "path-to-regexp"
+import { setURL } from "./utils/server/redirects"
 
 export function middleware(request: NextRequest) {
-  const isAuthorized = request.cookies.get("auth")
+  const headers = new Headers(request.headers)
+  setURL(headers, request.url)
 
-  const { pathname } = request.nextUrl
-
-  if (!isAuthorized) {
-    if (match("/lobby/:roomCode")(pathname)) {
-      const { params } = match("/lobby/:roomCode")(pathname)
-      return NextResponse.redirect(
-        new URL(`/?roomCode=${params.roomCode}`, request.url)
-      )
-    }
-  }
+  return NextResponse.next({
+    request: {
+      headers,
+    },
+  })
 }
