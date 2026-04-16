@@ -434,7 +434,10 @@ export const countries = [
 		id: "COD",
 		name: "Democratic Republic of the Congo",
 		iso: "COD",
-		matches: ["Democratic Republic of the Congo"],
+		matches: [
+			"Democratic Republic of the Congo",
+			"Democratic Republic of Congo",
+		],
 	},
 	{
 		id: "DNK",

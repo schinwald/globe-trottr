@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useShallow } from "zustand/shallow"
-import { useGameStore } from "../hooks/room"
+import { useGameStore } from "../../hooks/room"
 
 type PreStartCountdownProps = {
   className?: string

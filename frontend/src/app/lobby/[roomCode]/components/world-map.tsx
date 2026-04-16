@@ -2,19 +2,20 @@
 
 import type { Country } from "@globe-trottr/shared/utils/countries.js"
 import { AnimatePresence, motion } from "framer-motion"
-import { Play as PlayIcon, RefreshCw as RefreshIcon } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef } from "react"
 import Confetti from "react-confetti"
 import type { GlobeMethods } from "react-globe.gl"
 import Globe from "react-globe.gl"
 import { useShallow } from "zustand/shallow"
-import { Button } from "@/components/ui/button"
 import pointsData from "@/data/world.json"
 import { useGameStore } from "../hooks/room"
 import { Feedback } from "./feedback"
-import { PostStartCountdown } from "./poststart-countdown"
-import { PreStartCountdown } from "./prestart-countdown"
+import { Congratulations } from "./world-map/congratulations"
+import { PostStartCountdown } from "./world-map/poststart-countdown"
+import { PreStartCountdown } from "./world-map/prestart-countdown"
+import { StartGame } from "./world-map/start-game"
+import { TimesUp } from "./world-map/times-up"
 
 const mapColor = {
   fill: "#6ABD45",
@@ -63,12 +64,11 @@ type WorldMapProps = Record<string, never>
 
 const WorldMap: React.FC<WorldMapProps> = () => {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
-  const { state, countriesFound, countriesTotal, startGame } = useGameStore(
+  const { state, countriesFound, countriesTotal } = useGameStore(
     useShallow((store) => ({
       state: store.state,
       countriesFound: store.countriesFound,
       countriesTotal: store.countriesTotal,
-      startGame: store.startGame,
     }))
   )
 
@@ -115,55 +115,17 @@ const WorldMap: React.FC<WorldMapProps> = () => {
     <div className="relative grid h-[500px] w-full overflow-hidden justify-center">
       {state === "default" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <Button
-            size="lg"
-            onClick={() => {
-              startGame()
-            }}
-          >
-            <PlayIcon className="size-4 mr-1" />
-            <span className="text-lg font-bold">Start Game</span>
-          </Button>
+          <StartGame />
         </div>
       ) : null}
       {state === "timed-out" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <div className="flex flex-col items-center gap-1">
-            <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
-              Times Up!
-            </h3>
-            <div>
-              <Button
-                size="lg"
-                onClick={() => {
-                  startGame()
-                }}
-              >
-                <RefreshIcon className="size-4 mr-1" />
-                <span className="text-lg font-bold">Play Again?</span>
-              </Button>
-            </div>
-          </div>
+          <TimesUp />
         </div>
       ) : null}
       {state === "won" ? (
         <div className="col-span-full row-span-full flex justify-center items-center z-30">
-          <div className="flex flex-col items-center gap-1">
-            <h3 className="text-5xl font-bold text-orange-300 text-shadow-[_0_3px_0_rgb(0,0,0,0.7)] [-webkit-text-stroke:2px_black] [paint-order:stroke_fill]">
-              Congratulations!
-            </h3>
-            <div>
-              <Button
-                size="lg"
-                onClick={() => {
-                  startGame()
-                }}
-              >
-                <RefreshIcon className="size-4 mr-1" />
-                <span className="text-lg font-bold">Play Again?</span>
-              </Button>
-            </div>
-          </div>
+          <Congratulations />
         </div>
       ) : null}
       <div className="col-span-full row-span-full flex justify-center items-center z-30 pointer-events-none">

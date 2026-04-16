@@ -1,7 +1,7 @@
 import { Timer as TimerIcon } from "lucide-react"
 import { useShallow } from "zustand/shallow"
 import { cn } from "@/lib/utils"
-import { useGameStore } from "../hooks/room"
+import { useGameStore } from "../../hooks/room"
 
 type PostStartCountdownProps = {
   className?: string

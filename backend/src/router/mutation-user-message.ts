@@ -59,11 +59,11 @@ export const p = procedure
 			countriesFound,
 		});
 
-		const guess = validateGuess(input.message);
 		const timestamp = new Date();
 
 		if (["in-progress"].includes(state)) {
 			ctx.log.info({ input }, "Guessing country");
+			const guess = validateGuess(input.message);
 
 			if (guess) {
 				await gameCountriesFoundRepository.save({
