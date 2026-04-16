@@ -1,6 +1,6 @@
-![World Wide Wonders](/logo.svg)
+![Globe Trottr](/logo.svg)
 
-# 🌍 World Wide Wonders
+# 🌍 Globe Trottr
 
 A multiplayer geography game where players compete to identify countries on a globe. Challenge your friends and test your knowledge of world geography!
 
@@ -11,6 +11,14 @@ A multiplayer geography game where players compete to identify countries on a gl
 - **⏱️ Timed Rounds** - Race against the clock to identify as many countries as possible
 - **🔗 QR Code Room Sharing** - Easy room joining via QR codes
 - **🌈 Beautiful UI** - Smooth animations and a polished user experience
+
+## 🎮 How to Play
+
+1. **Create or Join a Room** - Start a new game room or join an existing one using a room code
+2. **Wait for Players** - Invite friends to join your room
+3. **Start the Game** - Once everyone is ready, start the round
+4. **Guess Countries** - Click on the globe to identify the highlighted country
+5. **Race Against Time** - The first player to guess correctly wins the round!
 
 ## 🚀 Quick Start
 
@@ -29,20 +37,41 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
    pnpm install
    ```
 
-2. Start the development servers:
+2. Set up Redis:
+   ```bash
+   docker run -d -p 6379:6379 redis:latest
+   ```
+
+3. Configure environment variables:
+   ```bash
+   cp frontend/.env.example frontend/.env
+   cp backend/.env.example backend/.env
+   ```
+
+4. Start the development servers:
    ```bash
    pnpm dev
    ```
 
-3. Open [http://localhost:3000](http://localhost:3000) to start playing!
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 🎮 How to Play
+### Running Frontend Only
 
-1. **Create or Join a Room** - Start a new game room or join an existing one using a room code
-2. **Wait for Players** - Invite friends to join your room
-3. **Start the Game** - Once everyone is ready, start the round
-4. **Guess Countries** - Click on the globe to identify the highlighted country
-5. **Race Against Time** - The first player to guess correctly wins the round!
+```bash
+cd frontend
+pnpm dev
+```
+
+### Running Backend Only
+
+```bash
+cd backend
+pnpm dev
+```
+
+> **Note:** The backend requires Redis to be running. Make sure to start Redis first.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -63,21 +92,25 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 - **TypeScript** - Type safety across the codebase
 - **Turbo** - Monorepo build system
 
-## 📜 Available Scripts
+## 🛠️ Development
 
-In the project root directory, you can run:
+After starting the dev servers with `pnpm dev`, the project uses Turbo to run both the frontend and backend in parallel.
 
-### `pnpm dev`
-Runs all apps in development mode using Turbo.
+When making changes to the API, run `pnpm generate:code` to regenerate the types. This ensures the frontend and backend stay in sync.
 
-### `pnpm build`
-Builds all apps for production.
+### Available Scripts
 
-### `pnpm lint`
-Runs linting across all packages.
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Runs all apps in development mode |
+| `pnpm build` | Builds all apps for production |
+| `pnpm lint` | Runs linting across all packages |
+| `pnpm format` | Formats code using Biome |
+| `pnpm generate:code` | Generates types and API code |
 
-### `pnpm format`
-Formats code using Biome.
+## 🗺️ Roadmap
 
-### `pnpm generate:code`
-Generates types and API code.
+- [ ] Color changing
+- [ ] Leaderboard system with guess tracking
+- [ ] Fuzzy guessing
+- [ ] New map categories
