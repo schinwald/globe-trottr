@@ -1,7 +1,5 @@
 ![Globe Trottr](/logo.svg)
 
-# 🌍 Globe Trottr
-
 A multiplayer geography game where players compete to identify countries on a globe. Challenge your friends and test your knowledge of world geography!
 
 ## ✨ Features
@@ -19,59 +17,6 @@ A multiplayer geography game where players compete to identify countries on a gl
 3. **Start the Game** - Once everyone is ready, start the round
 4. **Guess Countries** - Click on the globe to identify the highlighted country
 5. **Race Against Time** - The first player to guess correctly wins the round!
-
-## 🚀 Quick Start
-
-### Using Docker (Recommended)
-
-```bash
-docker compose up
-```
-
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Manual Setup
-
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-2. Set up Redis:
-   ```bash
-   docker run -d -p 6379:6379 redis:latest
-   ```
-
-3. Configure environment variables:
-   ```bash
-   cp frontend/.env.example frontend/.env
-   cp backend/.env.example backend/.env
-   ```
-
-4. Start the development servers:
-   ```bash
-   pnpm dev
-   ```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Running Frontend Only
-
-```bash
-cd frontend
-pnpm dev
-```
-
-### Running Backend Only
-
-```bash
-cd backend
-pnpm dev
-```
-
-> **Note:** The backend requires Redis to be running. Make sure to start Redis first.
-
----
 
 ## 🛠️ Tech Stack
 
@@ -94,9 +39,60 @@ pnpm dev
 
 ## 🛠️ Development
 
-After starting the dev servers with `pnpm dev`, the project uses Turbo to run both the frontend and backend in parallel.
+### Quick Start
 
-When making changes to the API, run `pnpm generate:code` to regenerate the types. This ensures the frontend and backend stay in sync.
+#### Using Docker (Recommended)
+
+```bash
+docker compose up
+```
+
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
+#### Manual Setup
+
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+2. Set up Redis:
+   ```bash
+   docker run -d -p 6379:6379 redis:latest
+   ```
+
+3. Configure environment variables:
+   ```bash
+   cp frontend/.env.example frontend/.env
+   cp backend/.env.example backend/.env
+   ```
+
+4. Start the development servers:
+   ```bash
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) to start playing!
+
+#### Running Frontend Only
+
+```bash
+cd frontend
+pnpm dev
+```
+
+#### Running Backend Only
+
+```bash
+cd backend
+pnpm dev
+```
+
+> **Note:** The backend requires Redis to be running. Make sure to start Redis first.
+
+### Code Generation
+
+The project uses Turbo to run both the frontend and backend in parallel. When making changes to the API, run `pnpm generate:code` to regenerate the types. This ensures the frontend and backend stay in sync.
 
 ### Available Scripts
 
